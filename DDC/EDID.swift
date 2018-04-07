@@ -82,10 +82,36 @@ class EDID {
 
   lazy var videoInputParameters: UInt8 = { [unowned self] in self.rawValue[20] }()
 
-  lazy var horizontalScreenSize: UInt8 = { [unowned self] in self.rawValue[21] }()
-  lazy var verticalScreenSize: UInt8 = { [unowned self] in self.rawValue[22] }()
+  lazy var screenWidth: Measurement? = { [unowned self] in
+    if self.rawValue[21] == 0 {
+      return nil
+    }
 
-  lazy var gamma: UInt8 = { [unowned self] in self.rawValue[23] }()
+    return Measurement(value: Double(self.rawValue[21]), unit: UnitLength.centimeters)
+  }()
+  lazy var screenHeight: Measurement? = { [unowned self] in
+    if self.rawValue[22] == 0 {
+      return nil
+    }
+
+    return Measurement(value: Double(self.rawValue[22]), unit: UnitLength.centimeters)
+  }()
+  lazy var aspectRatio: Float? = { [unowned self] in
+    if self.screenWidth != nil, self.screenHeight == nil {
+      let landscapeAspectRatio = Float(self.rawValue[21]) * 2.54 + 1.0
+      return landscapeAspectRatio
+    }
+
+    if self.screenHeight != nil, self.screenWidth == nil {
+      let portraitAspectRatio = Float(self.rawValue[22]) * 0.71 + 0.28
+      let landscapeAspectRatio = 1.0 / portraitAspectRatio
+      return landscapeAspectRatio
+    }
+
+    return nil
+  }()
+
+  lazy var gamma: Float = { [unowned self] in ((Float(self.rawValue[23]) / 255.0 * 2.54 + 1.0) * 100.0).rounded() / 100.0 }()
 
   lazy var features: UInt8 = { [unowned self] in self.rawValue[24] }()
 
@@ -151,11 +177,13 @@ class EDID {
 
   lazy var extensions: UInt8 = { [unowned self] in self.rawValue[126] }()
 
-  lazy var checksum: UInt8 = { [unowned self] in
-    self.rawValue[0...127].reduce(UInt8(0)) { $0.addingReportingOverflow($1).partialValue }
-  }()
+  lazy var checksum: UInt8 = { [unowned self] in self.rawValue[0...127].reduce(UInt8(0)) { $0.addingReportingOverflow($1).partialValue } }()
 
   init?(data: [UInt8]) {
+    guard data.count >= 128 else {
+      return nil
+    }
+
     self.rawValue = data
 
     guard self.header == EDID.HEADER else {
