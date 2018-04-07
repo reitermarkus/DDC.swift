@@ -10,32 +10,29 @@ import Cocoa
 import Foundation
 
 internal extension UInt16 {
-  init?(_ bytes: [UInt8]) {
-    guard bytes.count == 2 else {
-      return nil
-    }
-
-    self.init(UnsafePointer(bytes).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee })
+  init(_ byte1: UInt8, _ byte2: UInt8) {
+    self.init(
+      UInt16(byte1) << 8 +
+      UInt16(byte2)
+    )
   }
 }
 
 internal extension UInt32 {
-  init?(_ bytes: [UInt8]) {
-    guard bytes.count == 4 else {
-      return nil
-    }
-
-    self.init(UnsafePointer(bytes).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee })
+  init(_ byte1: UInt8, _ byte2: UInt8, _ byte3: UInt8, _ byte4: UInt8) {
+    self.init(
+      UInt32(UInt16(byte1, byte2)) << 16 +
+      UInt32(UInt16(byte3, byte4))
+    )
   }
 }
 
 internal extension UInt64 {
-  init?(_ bytes: [UInt8]) {
-    guard bytes.count == 8 else {
-      return nil
-    }
-
-    self.init(UnsafePointer(bytes).withMemoryRebound(to: UInt64.self, capacity: 1) { $0.pointee })
+  init(_ byte1: UInt8, _ byte2: UInt8, _ byte3: UInt8, _ byte4: UInt8, _ byte5: UInt8, _ byte6: UInt8, _ byte7: UInt8, _ byte8: UInt8) {
+    self.init(
+      UInt64(UInt32(byte1, byte2, byte3, byte4)) << 32 +
+      UInt64(UInt32(byte5, byte6, byte7, byte8))
+    )
   }
 }
 
@@ -68,11 +65,13 @@ class EDID {
 
   let rawValue: [UInt8]
 
-  lazy var header: UInt64 = { [unowned self] in UInt64(Array(self.rawValue[0...7]))! }()
+  lazy var header: UInt64 = { [unowned self] in UInt64(self.rawValue[0], self.rawValue[1], self.rawValue[2], self.rawValue[3], self.rawValue[4], self.rawValue[5], self.rawValue[6], self.rawValue[7]) }()
 
-  lazy var manufacturerId: UInt16 = { [unowned self] in UInt16([self.rawValue[9], self.rawValue[8]])! }()
-  lazy var productCode: UInt16 = { [unowned self] in UInt16(Array(self.rawValue[10...11]))! }()
-  lazy var serialNumber: UInt32 = { [unowned self] in UInt32(Array(self.rawValue[12...15]))! }()
+  lazy var manufacturerId: UInt16 = { [unowned self] in UInt16(self.rawValue[8], self.rawValue[9]) }()
+
+  lazy var productCode: UInt16 = { [unowned self] in UInt16(self.rawValue[11], self.rawValue[10]) }()
+
+  lazy var serialNumber: UInt32 = { [unowned self] in UInt32(self.rawValue[15], self.rawValue[14], self.rawValue[13], self.rawValue[12]) }()
 
   lazy var week: UInt8 = { [unowned self] in self.rawValue[16] }()
   lazy var year: Int = { [unowned self] in 1990 + Int(self.rawValue[17]) }()
@@ -226,7 +225,7 @@ class EDID {
   }
 
   private static func detailedTimingInformation(from data: [UInt8]) -> Descriptor {
-    let pixelClock = UnsafePointer(Array(data[0...1])).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee }
+    let pixelClock = UInt16(data[0], data[1])
 
     if pixelClock == 0 {
       let type = data[3]
@@ -249,21 +248,20 @@ class EDID {
 
     timingInformation.pixelClock = UInt64(pixelClock)
 
-    timingInformation.horizontalActive = UnsafePointer([data[4] >> 4, data[2]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
-    timingInformation.horizontalBlanking = UnsafePointer([data[4] & 0b1111, data[3]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+    timingInformation.horizontalActive = UInt32(UInt16(data[4] >> 4, data[2]))
+    timingInformation.horizontalBlanking = UInt32(UInt16(data[4] & 0b1111, data[3]))
 
-    timingInformation.verticalActive =  UnsafePointer([data[7] >> 4, data[5]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
-    timingInformation.verticalBlanking =  UnsafePointer([data[7] & 0b1111, data[6]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+    timingInformation.verticalActive =  UInt32(UInt16(data[7] >> 4, data[5]))
+    timingInformation.verticalBlanking =  UInt32(UInt16(data[7] & 0b1111, data[6]))
 
-
-    timingInformation.horizontalSyncOffset = UnsafePointer([data[11] >> 6, data[8]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
-    timingInformation.horizontalSyncPulseWidth = UnsafePointer([data[11] >> 4 & 0b11, data[9]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+    timingInformation.horizontalSyncOffset = UInt32(UInt16(data[11] >> 6, data[8]))
+    timingInformation.horizontalSyncPulseWidth = UInt32(UInt16(data[11] >> 4 & 0b11, data[9]))
 
     timingInformation.verticalSyncOffset = UInt32((data[10] >> 4) & 0b1111) | (UInt32((data[11] >> 2) & 0b11) << 4)
     timingInformation.verticalSyncPulseWidth = UInt32(data[10] & 0b1111) | (UInt32(data[11] & 0b11) << 4)
 
-    timingInformation.horizontalScaled = UnsafePointer([data[14] >> 4, data[12]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
-    timingInformation.verticalScaled = UnsafePointer([data[14] & 0b1111, data[13]]).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+    timingInformation.horizontalScaled =   UInt32(UInt16(data[14] >> 4, data[12]))
+    timingInformation.verticalScaled = UInt32(UInt16(data[14] & 0b1111, data[13]))
 
     timingInformation.horizontalBorderLeft = UInt32(data[15])
     timingInformation.horizontalBorderRight = UInt32(data[15])
@@ -274,4 +272,3 @@ class EDID {
     return Descriptor.timing(timingInformation)
   }
 }
-

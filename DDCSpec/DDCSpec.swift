@@ -48,7 +48,16 @@ let SAMSUMG_LS23ELDKF : [UInt8] = [
 ]
 
 // LG 38UC99-W
-let LG_38UC99_W: [UInt8] =  [0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 30, 109, 252, 118, 12, 211, 5, 0, 10, 27, 1, 4, 181, 87, 37, 120, 159, 202, 149, 166, 85, 78, 161, 38, 15, 80, 84, 4, 99, 128, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 209, 207, 133, 207, 0, 32, 241, 64, 116, 96, 48, 32, 122, 0, 106, 110, 49, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 253, 0, 52, 75, 125, 125, 54, 1, 10, 32, 32, 32, 32, 32, 32, 0, 0, 0, 252, 0, 76, 71, 32, 85, 76, 84, 82, 65, 87, 73, 68, 69, 10, 1, 180]
+let LG_38UC99_W: [UInt8] = [
+  0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x1e, 0x6d, 0xfc, 0x76, 0x0c, 0xd3, 0x05, 0x00,
+  0x0a, 0x1b, 0x01, 0x04, 0xb5, 0x57, 0x25, 0x78, 0x9f, 0xca, 0x95, 0xa6, 0x55, 0x4e, 0xa1, 0x26,
+  0x0f, 0x50, 0x54, 0x04, 0x63, 0x80, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+  0x01, 0x01, 0x01, 0x01, 0xd1, 0xcf, 0x85, 0xcf, 0x00, 0x20, 0xf1, 0x40, 0x74, 0x60, 0x30, 0x20,
+  0x7a, 0x00, 0x6a, 0x6e, 0x31, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfd, 0x00, 0x34,
+  0x4b, 0x7d, 0x7d, 0x36, 0x01, 0x0a, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00, 0x00, 0xfc,
+  0x00, 0x4c, 0x47, 0x20, 0x55, 0x4c, 0x54, 0x52, 0x41, 0x57, 0x49, 0x44, 0x45, 0x0a, 0x01, 0xb4,
+]
 
 func lenovo() -> EDID? {
   return EDID(data: LENOVO_YOGA_2)
@@ -158,6 +167,15 @@ class EDIDSpec: QuickSpec {
       }
     }
 
+    describe(".week") {
+      it("returns the manufacturing week") {
+        expect { lenovo()?.week }.to(equal(0))
+        expect { dell()?.week }.to(equal(45))
+        expect { samsung()?.week }.to(equal(14))
+        expect { lg()?.week }.to(equal(10))
+      }
+    }
+
     describe(".year") {
       it("returns the manufacturing year") {
         expect { lenovo()?.year }.to(equal(2012))
@@ -165,6 +183,8 @@ class EDIDSpec: QuickSpec {
         expect { samsung()?.year }.to(equal(2010))
         expect { lg()?.year }.to(equal(2017))
       }
+
+      print(lg()?.descriptors)
     }
 
     describe(".extensions") {
@@ -194,10 +214,30 @@ class EDIDSpec: QuickSpec {
       }
     }
 
+    describe(".productCode") {
+      it("is little-endian") {
+        print(String(format: "%2X", lenovo()!.productCode))
+
+        expect { lenovo()?.productCode }.to(equal(0x202D))
+        expect { dell()?.productCode }.to(equal(0xA0C0))
+        expect { samsung()?.productCode }.to(equal(0x072A))
+        expect { lg()?.productCode }.to(equal(0x76FC))
+      }
+    }
+
+    describe(".serialNumber") {
+      it("is little-endian") {
+        print(String(format: "%2X", lenovo()!.productCode))
+
+        expect { lenovo()?.serialNumber }.to(equal(0))
+        expect { dell()?.serialNumber }.to(equal(808867148))
+        expect { samsung()?.serialNumber }.to(equal(925905459))
+        expect { lg()?.serialNumber }.to(equal(381708))
+      }
+    }
+
     describe(".gamma") {
       it("returns the height of the screen") {
-        print(Float(bitPattern: UInt32(UInt8(120))))
-
         expect { lenovo()?.gamma }.to(equal(2.2))
         expect { dell()?.gamma }.to(equal(2.2))
         expect { samsung()?.gamma }.to(equal(2.2))
