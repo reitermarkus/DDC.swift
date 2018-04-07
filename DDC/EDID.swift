@@ -1,18 +1,7 @@
-//
-//  EDID.swift
-//  DDC
-//
-//  Created by Markus Reiter on 28.03.18.
-//  Copyright © 2018 Markus Reiter. All rights reserved.
-//
-
-import Cocoa
-import Foundation
-
 internal extension UInt16 {
   init(_ byte1: UInt8, _ byte2: UInt8) {
     self.init(
-      UInt16(byte1) << 8 +
+      UInt16(byte1) << 8 |
       UInt16(byte2)
     )
   }
@@ -21,7 +10,7 @@ internal extension UInt16 {
 internal extension UInt32 {
   init(_ byte1: UInt8, _ byte2: UInt8, _ byte3: UInt8, _ byte4: UInt8) {
     self.init(
-      UInt32(UInt16(byte1, byte2)) << 16 +
+      UInt32(UInt16(byte1, byte2)) << 16 |
       UInt32(UInt16(byte3, byte4))
     )
   }
@@ -30,7 +19,7 @@ internal extension UInt32 {
 internal extension UInt64 {
   init(_ byte1: UInt8, _ byte2: UInt8, _ byte3: UInt8, _ byte4: UInt8, _ byte5: UInt8, _ byte6: UInt8, _ byte7: UInt8, _ byte8: UInt8) {
     self.init(
-      UInt64(UInt32(byte1, byte2, byte3, byte4)) << 32 +
+      UInt64(UInt32(byte1, byte2, byte3, byte4)) << 32 |
       UInt64(UInt32(byte5, byte6, byte7, byte8))
     )
   }
