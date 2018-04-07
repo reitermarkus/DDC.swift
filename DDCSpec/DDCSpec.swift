@@ -183,8 +183,6 @@ class EDIDSpec: QuickSpec {
         expect { samsung()?.year }.to(equal(2010))
         expect { lg()?.year }.to(equal(2017))
       }
-
-      print(lg()?.descriptors)
     }
 
     describe(".extensions") {
@@ -216,8 +214,6 @@ class EDIDSpec: QuickSpec {
 
     describe(".productCode") {
       it("is little-endian") {
-        print(String(format: "%2X", lenovo()!.productCode))
-
         expect { lenovo()?.productCode }.to(equal(0x202D))
         expect { dell()?.productCode }.to(equal(0xA0C0))
         expect { samsung()?.productCode }.to(equal(0x072A))
@@ -227,8 +223,6 @@ class EDIDSpec: QuickSpec {
 
     describe(".serialNumber") {
       it("is little-endian") {
-        print(String(format: "%2X", lenovo()!.productCode))
-
         expect { lenovo()?.serialNumber }.to(equal(0))
         expect { dell()?.serialNumber }.to(equal(808867148))
         expect { samsung()?.serialNumber }.to(equal(925905459))
