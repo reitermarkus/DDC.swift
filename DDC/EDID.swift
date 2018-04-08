@@ -87,7 +87,7 @@ class EDID {
       let compositeSyncSignalOnGreenVideoSupported: Bool
       let serrationOnVerticalSyncSupported: Bool
 
-      init(_ byte: UInt8) {
+      internal init(_ byte: UInt8) {
         switch (byte.bit6, byte.bit5) {
           case (.zero, .zero):
             self.signalLevel = SignalLevel(video: 0.700, sync: 0.300)
@@ -133,7 +133,7 @@ class EDID {
       let colorBitDepth: ColorBitDepth
       let digitalVideoInterfaceStandardSupported: DigitalVideoInterfaceStandardSupported
 
-      init(_ byte: UInt8) {
+      internal init(_ byte: UInt8) {
         switch (byte.bit6, byte.bit5, byte.bit4) {
           case (.zero, .zero, .zero):
             self.colorBitDepth = .undefined
@@ -175,7 +175,7 @@ class EDID {
     case analog(Analog)
     case digital(Digital)
     
-    init(_ byte: UInt8)  {
+    internal init(_ byte: UInt8)  {
       switch byte.bit7 {
         case .zero:
           self = .analog(Analog(byte))
@@ -199,7 +199,7 @@ class EDID {
     case dummy
     case reserved
 
-    init<T: Collection>(data: T) where T.Index == Int, T.Element == UInt8 {
+    internal init<T: Collection>(data: T) where T.Index == Int, T.Element == UInt8 {
       let type = data[3]
 
       switch type {
