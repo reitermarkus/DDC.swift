@@ -1,3 +1,33 @@
+internal enum Bit {
+  case one
+  case zero
+
+  init(_ value: UInt8) {
+    if value == 0 {
+      self = .zero
+    } else {
+      self = .one
+    }
+  }
+}
+
+internal extension Bool {
+  init(_ bit: Bit) {
+    self.init(bit == .one)
+  }
+}
+
+internal extension UInt8 {
+  var bit7: Bit { get { return Bit(self >> 7             ) } }
+  var bit6: Bit { get { return Bit(self >> 6 & 0b00000001) } }
+  var bit5: Bit { get { return Bit(self >> 5 & 0b00000001) } }
+  var bit4: Bit { get { return Bit(self >> 4 & 0b00000001) } }
+  var bit3: Bit { get { return Bit(self >> 3 & 0b00000001) } }
+  var bit2: Bit { get { return Bit(self >> 2 & 0b00000001) } }
+  var bit1: Bit { get { return Bit(self >> 1 & 0b00000001) } }
+  var bit0: Bit { get { return Bit(self      & 0b00000001) } }
+}
+
 internal extension UInt16 {
   init(_ byte1: UInt8, _ byte2: UInt8) {
     self.init(
@@ -25,15 +55,185 @@ internal extension UInt64 {
   }
 }
 
+internal extension String {
+  init<T: Sequence>(_ bytes: T) where T.Iterator.Element == UInt8 {
+    let characters = bytes.map() { Character(UnicodeScalar($0)) }
+    self.init(characters)
+  }
+}
+
 class EDID {
   private static let HEADER = 0x00ffffffffffff00
+
+  enum VideoInputDefinition {
+    struct Analog {
+      struct SignalLevel {
+        let video: Float
+        let sync: Float
+        var total: Float {
+          get { return self.video + self.sync }
+        }
+      }
+
+      enum VideoSetup {
+        case blankLevelIsBlackLevel
+        case blankToBlackSetupOrPedestal
+      }
+
+      let signalLevel: SignalLevel
+      let videoSetup: VideoSetup
+      let separateSyncHorizontalAndVerticalSignalsSupported: Bool
+      let compositeSyncSignalOnHorizontalSupported: Bool
+      let compositeSyncSignalOnGreenVideoSupported: Bool
+      let serrationOnVerticalSyncSupported: Bool
+
+      init(_ byte: UInt8) {
+        switch (byte.bit6, byte.bit5) {
+          case (.zero, .zero):
+            self.signalLevel = SignalLevel(video: 0.700, sync: 0.300)
+          case (.zero, .one):
+            self.signalLevel = SignalLevel(video: 0.714, sync: 0.286)
+          case (.one, .zero):
+            self.signalLevel = SignalLevel(video: 1.000, sync: 0.400)
+          case (.one, .one):
+            self.signalLevel = SignalLevel(video: 0.700, sync: 0.000)
+        }
+
+        switch byte.bit4 {
+          case .one:
+            self.videoSetup = .blankLevelIsBlackLevel
+          case .zero:
+            self.videoSetup = .blankToBlackSetupOrPedestal
+        }
+
+        self.separateSyncHorizontalAndVerticalSignalsSupported = Bool(byte.bit3)
+        self.compositeSyncSignalOnHorizontalSupported = Bool(byte.bit2)
+        self.compositeSyncSignalOnGreenVideoSupported = Bool(byte.bit1)
+        self.serrationOnVerticalSyncSupported = Bool(byte.bit0)
+      }
+    }
+    
+    struct Digital {
+      enum ColorBitDepth {
+        case undefined
+        case bitsPerPrimaryColor(UInt8)
+        case reserved
+      }
+
+      enum DigitalVideoInterfaceStandardSupported {
+        case undefined
+        case dvi
+        case hdmiA
+        case hdmiB
+        case mddi
+        case displayPort
+        case reserved
+      }
+
+      let colorBitDepth: ColorBitDepth
+      let digitalVideoInterfaceStandardSupported: DigitalVideoInterfaceStandardSupported
+
+      init(_ byte: UInt8) {
+        switch (byte.bit6, byte.bit5, byte.bit4) {
+          case (.zero, .zero, .zero):
+            self.colorBitDepth = .undefined
+          case (.zero, .zero, .one):
+            self.colorBitDepth = .bitsPerPrimaryColor(6)
+          case (.zero, .one, .zero):
+            self.colorBitDepth = .bitsPerPrimaryColor(8)
+          case (.zero, .one, .one):
+            self.colorBitDepth = .bitsPerPrimaryColor(10)
+          case (.one, .zero, .zero):
+            self.colorBitDepth = .bitsPerPrimaryColor(12)
+          case (.one, .zero, .one):
+            self.colorBitDepth = .bitsPerPrimaryColor(14)
+          case (.one, .one, .zero):
+            self.colorBitDepth = .bitsPerPrimaryColor(16)
+          case (.one, .one, .one):
+            self.colorBitDepth = .reserved
+        }
+
+        switch (byte.bit3, byte.bit2, byte.bit1, byte.bit0) {
+          case (.zero, .zero, .zero, .zero):
+            self.digitalVideoInterfaceStandardSupported = .undefined
+          case (.zero, .zero, .zero, .one):
+            self.digitalVideoInterfaceStandardSupported = .dvi
+          case (.zero, .zero, .one, .zero):
+            self.digitalVideoInterfaceStandardSupported = .hdmiA
+          case (.zero, .zero, .one, .one):
+            self.digitalVideoInterfaceStandardSupported = .hdmiB
+          case (.zero, .one, .zero, .zero):
+            self.digitalVideoInterfaceStandardSupported = .mddi
+          case (.zero, .one, .zero, .one):
+            self.digitalVideoInterfaceStandardSupported = .displayPort
+          case (_, _, _, _):
+            self.digitalVideoInterfaceStandardSupported = .reserved
+        }
+      }
+    }
+  
+    case analog(Analog)
+    case digital(Digital)
+    
+    init(_ byte: UInt8)  {
+      switch byte.bit7 {
+        case .zero:
+          self = .analog(Analog(byte))
+        case .one:
+          self = .digital(Digital(byte))
+      }
+    }
+  }
 
   enum Descriptor {
     case timing(IODetailedTimingInformation)
     case serialNumber(String)
     case text(String)
-    case rangeLimits(String)
+    case rangeLimits([UInt8])
     case displayName(String)
+    case whitePoint([UInt8])
+    case additionalStandardTimingInformation(StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?)
+    case displayColorManagement([UInt8])
+    case cvtTimingCodes([UInt8])
+    case additionalStandardTiming3([UInt8])
+    case dummy
+    case reserved
+
+    init<T: Collection>(data: T) where T.Index == Int, T.Element == UInt8 {
+      let type = data[3]
+
+      switch type {
+      case 0xFF:
+        self = .serialNumber(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+      case 0xFE:
+        self = .text(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+      case 0xFD:
+        self = .rangeLimits(Array(data))
+      case 0xFC:
+        self = .displayName(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+      case 0xFB:
+        self = .whitePoint(Array(data))
+      case 0xFA:
+        self = .additionalStandardTimingInformation(
+          StandardTimingInformation(with: data[5...6]),
+          StandardTimingInformation(with: data[7...8]),
+          StandardTimingInformation(with: data[9...10]),
+          StandardTimingInformation(with: data[11...12]),
+          StandardTimingInformation(with: data[13...14]),
+          StandardTimingInformation(with: data[15...16])
+        )
+      case 0xF9:
+        self = .displayColorManagement(Array(data))
+      case 0xF8:
+        self = .cvtTimingCodes(Array(data))
+      case 0xF7:
+        self = .additionalStandardTiming3(Array(data))
+      case 0x10:
+        self = .dummy
+      default:
+        self = .reserved
+      }
+    }
   }
 
   struct StandardTimingInformation {
@@ -41,7 +241,7 @@ class EDID {
     let aspectRatio: UInt8
     let verticalFrequency: UInt8
 
-    init?(with data: [UInt8]) {
+    init?<T: Collection>(with data: T) where T.Index == Int, T.Element == UInt8 {
       if data[0] == 1 && data[1] == 1 {
         return nil
       }
@@ -68,7 +268,7 @@ class EDID {
   lazy var edidVersion: UInt8 = { [unowned self] in self.rawValue[18] }()
   lazy var edidRevision: UInt8 = { [unowned self] in self.rawValue[19] }()
 
-  lazy var videoInputParameters: UInt8 = { [unowned self] in self.rawValue[20] }()
+  lazy var videoInputDefinition: VideoInputDefinition = { [unowned self] in VideoInputDefinition(self.rawValue[20]) }()
 
   lazy var screenWidth: Measurement? = { [unowned self] in
     if self.rawValue[21] == 0 {
@@ -143,14 +343,14 @@ class EDID {
 
   lazy var standardDisplayModes: (StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?) = { [unowned self] in
     (
-      StandardTimingInformation(with: Array(self.rawValue[38...39])),
-      StandardTimingInformation(with: Array(self.rawValue[40...41])),
-      StandardTimingInformation(with: Array(self.rawValue[42...43])),
-      StandardTimingInformation(with: Array(self.rawValue[44...45])),
-      StandardTimingInformation(with: Array(self.rawValue[46...47])),
-      StandardTimingInformation(with: Array(self.rawValue[48...49])),
-      StandardTimingInformation(with: Array(self.rawValue[50...51])),
-      StandardTimingInformation(with: Array(self.rawValue[52...53]))
+      StandardTimingInformation(with: self.rawValue[38...39]),
+      StandardTimingInformation(with: self.rawValue[40...41]),
+      StandardTimingInformation(with: self.rawValue[42...43]),
+      StandardTimingInformation(with: self.rawValue[44...45]),
+      StandardTimingInformation(with: self.rawValue[46...47]),
+      StandardTimingInformation(with: self.rawValue[48...49]),
+      StandardTimingInformation(with: self.rawValue[50...51]),
+      StandardTimingInformation(with: self.rawValue[52...53])
     )
   }()
 
@@ -197,40 +397,11 @@ class EDID {
     return "\(self.edidVersion).\(self.edidRevision)"
   }
 
-  private static func parseDescriptorString(_ data: [UInt8]) -> String {
-    var string = ""
-
-    for c in data[5...17] {
-      let char = Character(UnicodeScalar(c))
-
-      if char == "\n" {
-        break
-      }
-
-      string.append(char)
-    }
-
-    return string
-  }
-
-  private static func detailedTimingInformation(from data: [UInt8]) -> Descriptor {
+  private static func detailedTimingInformation<T: Collection>(from data: T) -> Descriptor where T.Index == Int, T.Element == UInt8 {
     let pixelClock = UInt16(data[0], data[1])
 
     if pixelClock == 0 {
-      let type = data[3]
-
-      switch type {
-      case 0xFF:
-        return Descriptor.serialNumber(parseDescriptorString(data))
-      case 0xFE:
-        return Descriptor.text(parseDescriptorString(data))
-      case 0xFD:
-        return Descriptor.rangeLimits("")
-      case 0xFC:
-        return Descriptor.displayName(parseDescriptorString(data))
-      default: break
-
-      }
+      return Descriptor(data: data)
     }
 
     var timingInformation = IODetailedTimingInformation()
