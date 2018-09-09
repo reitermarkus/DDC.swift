@@ -252,6 +252,76 @@ public class EDID {
     }
   }
 
+  public struct FeatureSupport {
+    let standbyModeSupported: Bool
+    let suspendModeSupported: Bool
+    let veryLowPowerModeSupported: Bool
+
+    enum DisplayColorType {
+      case monochromeOrGrayscale
+      case rgbColor
+      case nonRgbColor
+      case undefined
+    }
+
+    let displayColorType: DisplayColorType?
+
+    enum SupportedColorEncodingFormat {
+      case rgb444
+      case rgb444AndYCrCb444
+      case rgb444AndYCrCb422
+      case rgb444AndYCrCb444AndYCrCb422
+    }
+
+    let supportedColorEncodingFormat: SupportedColorEncodingFormat?
+
+    let srgbStandardIsDefaultColorSpace: Bool
+    let preferredTimingModeIncludesNativePixelFormatAndPreferredRefreshRateOfDisplayDevice: Bool
+    let displayIsContinuousFrequency: Bool
+
+    init(_ data: [UInt8]) {
+      let byte23 = data[23]
+      let byte24 = data[24]
+
+      self.standbyModeSupported = Bool(byte24.bit7)
+      self.suspendModeSupported = Bool(byte24.bit6)
+      self.veryLowPowerModeSupported = Bool(byte24.bit5)
+
+      switch byte23.bit7 {
+        case .zero:
+          switch (byte24.bit4, byte24.bit3) {
+            case (.zero, .zero):
+              self.displayColorType = DisplayColorType.monochromeOrGrayscale
+            case (.zero, .one):
+              self.displayColorType = DisplayColorType.rgbColor
+            case (.one, .zero):
+              self.displayColorType = DisplayColorType.nonRgbColor
+            case (.one, .one):
+              self.displayColorType = DisplayColorType.undefined
+          }
+
+          self.supportedColorEncodingFormat = nil
+        case .one:
+          switch (byte24.bit4, byte24.bit3) {
+            case (.zero, .zero):
+              self.supportedColorEncodingFormat = SupportedColorEncodingFormat.rgb444
+            case (.zero, .one):
+              self.supportedColorEncodingFormat = SupportedColorEncodingFormat.rgb444AndYCrCb444
+            case (.one, .zero):
+              self.supportedColorEncodingFormat = SupportedColorEncodingFormat.rgb444AndYCrCb422
+            case (.one, .one):
+              self.supportedColorEncodingFormat = SupportedColorEncodingFormat.rgb444AndYCrCb444AndYCrCb422
+          }
+
+          self.displayColorType = nil
+      }
+
+      self.srgbStandardIsDefaultColorSpace = Bool(byte24.bit2)
+      self.preferredTimingModeIncludesNativePixelFormatAndPreferredRefreshRateOfDisplayDevice = Bool(byte24.bit1)
+      self.displayIsContinuousFrequency = Bool(byte24.bit0)
+    }
+  }
+
   public let rawValue: [UInt8]
 
   public lazy var header: UInt64 = { [unowned self] in UInt64(self.rawValue[0], self.rawValue[1], self.rawValue[2], self.rawValue[3], self.rawValue[4], self.rawValue[5], self.rawValue[6], self.rawValue[7]) }()
@@ -301,7 +371,7 @@ public class EDID {
 
   public lazy var gamma: Float = { [unowned self] in ((Float(self.rawValue[23]) / 255.0 * 2.54 + 1.0) * 100.0).rounded() / 100.0 }()
 
-  public lazy var features: UInt8 = { [unowned self] in self.rawValue[24] }()
+  public lazy var features: FeatureSupport = { [unowned self] in FeatureSupport(self.rawValue) }()
 
   public lazy var redAndGreenLeastSignificantBits: UInt8 = { [unowned self] in self.rawValue[25] }()
   public lazy var blueAndWhiteLeastSignificantBits: UInt8 = { [unowned self] in self.rawValue[26] }()
