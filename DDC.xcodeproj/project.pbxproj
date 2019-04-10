@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		28225496207832D800D119A2 /* DDCSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28225495207832D800D119A2 /* DDCSpec.swift */; };
-		28225498207832D800D119A2 /* DDC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDC::DDC::Product /* DDC.framework */; };
+		28225498207832D800D119A2 /* DDC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "DDC::DDC::Product" /* DDC.framework */; };
 		284EB28920782E37002A3BA6 /* DDC.h in Headers */ = {isa = PBXBuildFile; fileRef = 284EB28720782E27002A3BA6 /* DDC.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2875061720786F5A00F8D7BD /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28320782DE6002A3BA6 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2875061820786F5A00F8D7BD /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28420782DE6002A3BA6 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -47,7 +47,7 @@
 		284EB28320782DE6002A3BA6 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/Mac/Nimble.framework; sourceTree = "<group>"; };
 		284EB28420782DE6002A3BA6 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/Mac/Quick.framework; sourceTree = "<group>"; };
 		284EB28720782E27002A3BA6 /* DDC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDC.h; sourceTree = "<group>"; };
-		DDC::DDC::Product /* DDC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DDC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"DDC::DDC::Product" /* DDC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DDC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* EDID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EDID.swift; sourceTree = "<group>"; };
 		OBJ_9 /* DDC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -92,7 +92,7 @@
 		OBJ_49 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DDC::DDC::Product /* DDC.framework */,
+				"DDC::DDC::Product" /* DDC.framework */,
 				28225493207832D800D119A2 /* DDCSpec.xctest */,
 			);
 			name = Products;
@@ -151,7 +151,7 @@
 			productReference = 28225493207832D800D119A2 /* DDCSpec.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DDC::DDC /* DDC */ = {
+		"DDC::DDC" /* DDC */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_55 /* Build configuration list for PBXNativeTarget "DDC" */;
 			buildPhases = (
@@ -165,7 +165,7 @@
 			);
 			name = DDC;
 			productName = DDC;
-			productReference = DDC::DDC::Product /* DDC.framework */;
+			productReference = "DDC::DDC::Product" /* DDC.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -180,7 +180,11 @@
 					28225492207832D800D119A2 = {
 						CreatedOnToolsVersion = 9.3;
 						DevelopmentTeam = KJ5F4KTDFH;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
+					};
+					"DDC::DDC" = {
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -189,6 +193,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = OBJ_5;
@@ -196,7 +201,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DDC::DDC /* DDC */,
+				"DDC::DDC" /* DDC */,
 				28225492207832D800D119A2 /* DDCSpec */,
 			);
 		};
@@ -235,7 +240,7 @@
 /* Begin PBXTargetDependency section */
 		2822549A207832D800D119A2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DDC::DDC /* DDC */;
+			target = "DDC::DDC" /* DDC */;
 			targetProxy = 28225499207832D800D119A2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -302,7 +307,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = reitermarkus.DDCSpec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -362,7 +367,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = reitermarkus.DDCSpec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -426,7 +431,8 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
+				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DDC;
 			};
 			name = Debug;
@@ -449,7 +455,8 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
+				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DDC;
 			};
 			name = Release;

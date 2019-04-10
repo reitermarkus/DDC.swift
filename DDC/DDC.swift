@@ -311,8 +311,10 @@ class DDC {
           continue
         }
 
-        if request.replyTransactionType == kIOI2CNoTransactionType {
-          defer { usleep(20000) }
+        defer {
+          if request.replyTransactionType == kIOI2CNoTransactionType {
+            usleep(20000)
+          }
         }
 
         return request.result == KERN_SUCCESS
@@ -388,7 +390,7 @@ class DDC {
     let dict = IODisplayCreateInfoDictionary(servicePort, IOOptionBits(kIODisplayOnlyPreferredName)).takeRetainedValue() as NSDictionary
 
     if let displayEDID = dict["IODisplayEDIDOriginal"] as? Data {
-      let bytes = displayEDID.withUnsafeBytes() { [UInt8](UnsafeBufferPointer(start: $0, count: displayEDID.count)) }
+      let bytes = [UInt8](displayEDID)
       return EDID(data: bytes)
     }
 
