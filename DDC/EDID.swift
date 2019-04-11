@@ -1,3 +1,5 @@
+import Cocoa
+
 // Enum to simplify exhaustive matching of bits.
 internal enum Bit {
   case one
