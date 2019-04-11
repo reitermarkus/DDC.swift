@@ -1,12 +1,17 @@
+// Enum to simplify exhaustive matching of bits.
 internal enum Bit {
   case one
   case zero
 
   init(_ value: UInt8) {
-    if value == 0 {
-      self = .zero
-    } else {
-      self = .one
+    switch value {
+      case 0:
+        self = .zero
+      case 1:
+        self = .one
+      default:
+        assertionFailure("Bit can only be 0 or 1, but was \(value).")
+        self = .one
     }
   }
 }
@@ -112,7 +117,7 @@ public class EDID {
         self.serrationOnVerticalSyncSupported = Bool(byte.bit0)
       }
     }
-    
+
     public struct Digital {
       public enum ColorBitDepth {
         case undefined
@@ -171,10 +176,10 @@ public class EDID {
         }
       }
     }
-  
+
     case analog(Analog)
     case digital(Digital)
-    
+
     init(_ byte: UInt8)  {
       switch byte.bit7 {
         case .zero:
