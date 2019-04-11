@@ -1,12 +1,3 @@
-//
-//  DDC.swift
-//  DDC
-//
-//  Originally created in Objective-C by Jonathan Taylor on 7/10/09 (see http://github.com/jontaylor/DDC-CI-Tools-for-OS-X).
-//
-//
-//
-
 import Cocoa
 import Foundation
 import IOKit
