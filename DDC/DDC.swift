@@ -56,55 +56,55 @@ class DDC {
 
     var value: UInt8 {
       switch self {
-      case .reset:                       return 0x04
-      case .resetBrighnessAndContrast:   return 0x05
-      case .resetGeometry:               return 0x06
-      case .resetColor:                  return 0x08
-      case .brightness:                  return 0x10 // OK: LG 38UC99-W
-      case .contrast:                    return 0x12 // OK: LG 38UC99-W
-      case .colorPresetA:                return 0x14 // OK: Dell U2515H -> Presets: 4 = 5000K, 5 = 6500K, 6 = 7500K, 8 = 9300K, 9 = 10000K, 11 = 5700K, 12 = Custom Color
-      case .redGain:                     return 0x16 // OK: LG 38UC99-W
-      case .greenGain:                   return 0x18 // OK: LG 38UC99-W
-      case .blueGain:                    return 0x1A // OK: LG 38UC99-W
-      case .autoSizeCenter:              return 0x1E
-      case .horizontalPosition:          return 0x20
-      case .width:                       return 0x22
-      case .pincushionAmp:               return 0x24
-      case .pincushionBalance:           return 0x26
-      case .horizontalStaticConvergence: return 0x28
-      case .verticalStaticConvergence:   return 0x28
-      case .verticalPosition:            return 0x30
-      case .height:                      return 0x32
-      case .pincushionPhase:             return 0x42
-      case .keystoneBalance:             return 0x40
-      case .topPincushionAmp:            return 0x46
-      case .topPincushionBalance:        return 0x48
-      case .bottomPincushionAmp:         return 0x4A
-      case .bottomPincushionBalance:     return 0x4C
-      case .verticalLinearity:           return 0x3A
-      case .verticalLinearityBalance:    return 0x3C
-      case .moireCancel:                 return 0x56
-      case .inputSource:                 return 0x60
-      case .audioSpeakerVolume:          return 0x62 // OK: LG 38UC99-W
-      case .redBlackLevel:               return 0x6C // OK: LG 38UC99-W (not available from OSD)
-      case .greenBlackLevel:             return 0x6E // OK: LG 38UC99-W (not available from OSD)
-      case .blueBlackLevel:              return 0x70 // OK: LG 38UC99-W (not available from OSD)
-      case .orientation:                 return 0xAA
-      case .audioMute:                   return 0x8D
-      case .settings:                    return 0xB0 // unsure on this one
-      case .onScreenDisplay:             return 0xCA // read only   -> returns '1' (OSD closed) or '2' (OSD active)
-      case .osdLanguage:                 return 0xCC
-      case .dpms:                        return 0xD6
-      case .colorPresetB:                return 0xDC // Dell U2515H -> Presets: 0 = Standard, 2 = Multimedia, 3 = Movie, 5 = Game
-      case .vcpVersion:                  return 0xDF
-      case .colorPresetC:                return 0xE0 // Dell U2515H -> Brightness on/off (0 or 1)
-      case .powerControl:                return 0xE1
-      case .topLeftScreenPurity:         return 0xE8
-      case .topRightScreenPurity:        return 0xE9
-      case .bottomLeftScreenPurity:      return 0xEA
-      case .bottomRightScreenPurity:     return 0xEB
-      case .sharpness:                   return 0x87 // OK: LG 38UC99-W
-      case .blackStabilizer:             return 0xf9 // OK: LG 38UC99-W -> can only be set to 0
+        case .reset:                       return 0x04
+        case .resetBrighnessAndContrast:   return 0x05
+        case .resetGeometry:               return 0x06
+        case .resetColor:                  return 0x08
+        case .brightness:                  return 0x10 // OK: LG 38UC99-W
+        case .contrast:                    return 0x12 // OK: LG 38UC99-W
+        case .colorPresetA:                return 0x14 // OK: Dell U2515H -> Presets: 4 = 5000K, 5 = 6500K, 6 = 7500K, 8 = 9300K, 9 = 10000K, 11 = 5700K, 12 = Custom Color
+        case .redGain:                     return 0x16 // OK: LG 38UC99-W
+        case .greenGain:                   return 0x18 // OK: LG 38UC99-W
+        case .blueGain:                    return 0x1a // OK: LG 38UC99-W
+        case .autoSizeCenter:              return 0x1e
+        case .horizontalPosition:          return 0x20
+        case .width:                       return 0x22
+        case .pincushionAmp:               return 0x24
+        case .pincushionBalance:           return 0x26
+        case .horizontalStaticConvergence: return 0x28
+        case .verticalStaticConvergence:   return 0x28
+        case .verticalPosition:            return 0x30
+        case .height:                      return 0x32
+        case .pincushionPhase:             return 0x42
+        case .keystoneBalance:             return 0x40
+        case .topPincushionAmp:            return 0x46
+        case .topPincushionBalance:        return 0x48
+        case .bottomPincushionAmp:         return 0x4a
+        case .bottomPincushionBalance:     return 0x4c
+        case .verticalLinearity:           return 0x3a
+        case .verticalLinearityBalance:    return 0x3c
+        case .moireCancel:                 return 0x56
+        case .inputSource:                 return 0x60
+        case .audioSpeakerVolume:          return 0x62 // OK: LG 38UC99-W
+        case .redBlackLevel:               return 0x6c // OK: LG 38UC99-W (not available from OSD)
+        case .greenBlackLevel:             return 0x6e // OK: LG 38UC99-W (not available from OSD)
+        case .blueBlackLevel:              return 0x70 // OK: LG 38UC99-W (not available from OSD)
+        case .orientation:                 return 0xaa
+        case .audioMute:                   return 0x8d
+        case .settings:                    return 0xb0 // unsure on this one
+        case .onScreenDisplay:             return 0xca // read only   -> returns '1' (OSD closed) or '2' (OSD active)
+        case .osdLanguage:                 return 0xcc
+        case .dpms:                        return 0xd6
+        case .colorPresetB:                return 0xdC // Dell U2515H -> Presets: 0 = Standard, 2 = Multimedia, 3 = Movie, 5 = Game
+        case .vcpVersion:                  return 0xdf
+        case .colorPresetC:                return 0xe0 // Dell U2515H -> Brightness on/off (0 or 1)
+        case .powerControl:                return 0xe1
+        case .topLeftScreenPurity:         return 0xe8
+        case .topRightScreenPurity:        return 0xe9
+        case .bottomLeftScreenPurity:      return 0xea
+        case .bottomRightScreenPurity:     return 0xeb
+        case .sharpness:                   return 0x87 // OK: LG 38UC99-W
+        case .blackStabilizer:             return 0xf9 // OK: LG 38UC99-W -> can only be set to 0
       }
     }
   }
@@ -152,7 +152,7 @@ class DDC {
       UInt8(value >> 8),
       UInt8(value & 255),
       0x6E,
-      ]
+    ]
 
     data[6] ^= data[0] ^ data[1] ^ data[2] ^ data[3] ^ data[4] ^ data[5]
 
@@ -182,7 +182,7 @@ class DDC {
       0x01,
       command,
       0x6E,
-      ]
+    ]
 
     data[4] ^= data[0] ^ data[1] ^ data[2] ^ data[3]
 
