@@ -321,9 +321,10 @@ public class DDC {
 
   static func servicePort(from displayId: CGDirectDisplayID) -> io_object_t? {
     var iter = io_iterator_t()
-    let err: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &iter)
+    
+    let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &iter)
 
-    guard err == KERN_SUCCESS else {
+    guard status == KERN_SUCCESS else {
       return nil
     }
 
