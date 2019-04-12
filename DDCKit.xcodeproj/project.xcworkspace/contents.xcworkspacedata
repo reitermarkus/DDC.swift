@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:">
+      location = "self:/Users/Markus/Documents/Git-Repos/DDC.swift/DDCKit.xcodeproj">
    </FileRef>
 </Workspace>
