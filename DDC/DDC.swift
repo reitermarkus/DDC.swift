@@ -2,8 +2,8 @@ import Cocoa
 import Foundation
 import IOKit
 
-class DDC {
-  enum Command {
+public class DDC {
+  public enum Command {
     case reset
     case resetBrighnessAndContrast
     case resetGeometry
@@ -113,7 +113,7 @@ class DDC {
   let framebuffer: io_service_t
   let replyTransactionType: IOOptionBits
 
-  init?(for displayId: CGDirectDisplayID, withReplyTransactionType replyTransactionType: IOOptionBits? = nil) {
+  public init?(for displayId: CGDirectDisplayID, withReplyTransactionType replyTransactionType: IOOptionBits? = nil) {
     self.displayId = displayId
 
     guard let framebuffer = DDC.ioFramebufferPortFromDisplayId(displayId: displayId) else {
@@ -131,7 +131,7 @@ class DDC {
     }
   }
 
-  convenience init?(for screen: NSScreen, withReplyTransactionType replyTransactionType: IOOptionBits? = nil) {
+  public convenience init?(for screen: NSScreen, withReplyTransactionType replyTransactionType: IOOptionBits? = nil) {
     guard let displayId = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
       return nil
     }
@@ -139,11 +139,11 @@ class DDC {
     self.init(for: displayId, withReplyTransactionType: replyTransactionType)
   }
 
-  func write(command: Command, value: UInt8) -> Bool {
+  public func write(command: Command, value: UInt8) -> Bool {
     return write(command: command.value, value: value)
   }
 
-  func write(command: UInt8, value: UInt8) -> Bool {
+  public func write(command: UInt8, value: UInt8) -> Bool {
     var data: [UInt8] = [
       0x51,
       0x84,
@@ -171,11 +171,11 @@ class DDC {
     return DDC.send(request: &request, to: self.framebuffer)
   }
 
-  func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
+  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
     return read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, errorRecoveryWaitTime: errorRecoveryWaitTime)
   }
 
-  func read(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
+  public func read(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
     var data: [UInt8] = [
       0x51,
       0x82,
@@ -315,7 +315,7 @@ class DDC {
     }
   }
 
-  private static func servicePort(from displayId: CGDirectDisplayID) -> io_object_t? {
+  static func servicePort(from displayId: CGDirectDisplayID) -> io_object_t? {
     var iter = io_iterator_t()
     let err: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &iter)
 
@@ -356,7 +356,7 @@ class DDC {
     return nil
   }
 
-  private static func ioFramebufferPortFromDisplayId(displayId: CGDirectDisplayID) -> io_service_t? {
+  static func ioFramebufferPortFromDisplayId(displayId: CGDirectDisplayID) -> io_service_t? {
     if CGDisplayIsBuiltin(displayId) == boolean_t(truncating: true) {
       return nil
     }
@@ -373,7 +373,7 @@ class DDC {
     return servicePort
   }
 
-  func edid() -> EDID? {
+  public func edid() -> EDID? {
     guard let servicePort = DDC.servicePort(from: displayId) else {
       return nil
     }
@@ -388,7 +388,7 @@ class DDC {
     return nil
   }
 
-  func edidOld() -> EDID? {
+  public func edidOld() -> EDID? {
     let receiveBytes = { (count: Int) -> [UInt8]? in
       var data: [UInt8] = [0x00]
       var replyData: [UInt8] = Array(repeating: 0, count: count)
