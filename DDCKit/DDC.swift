@@ -171,11 +171,11 @@ public class DDC {
     return DDC.send(request: &request, to: self.framebuffer)
   }
 
-  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
-    return read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, errorRecoveryWaitTime: errorRecoveryWaitTime)
+  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
+    return read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime)
   }
 
-  public func read(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
+  public func read(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
     var data: [UInt8] = [
       0x51,
       0x82,
@@ -195,7 +195,7 @@ public class DDC {
     request.sendTransactionType = IOOptionBits(kIOI2CSimpleTransactionType)
     request.sendBytes = UInt32(data.count)
 
-    request.minReplyDelay = 10
+    request.minReplyDelay = minReplyDelay
 
     request.replyTransactionType = self.replyTransactionType
 
