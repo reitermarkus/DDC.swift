@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DDCKit::DDCKit"
-               BuildableName = "DDCKit.framework"
-               BlueprintName = "DDCKit"
-               ReferencedContainer = "container:DDCKit.xcodeproj">
+               BlueprintIdentifier = "DDC::DDC"
+               BuildableName = "DDC.framework"
+               BlueprintName = "DDC"
+               ReferencedContainer = "container:DDC.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,19 +33,19 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "28225492207832D800D119A2"
-               BuildableName = "DDCKitSpec.xctest"
-               BlueprintName = "DDCKitSpec"
-               ReferencedContainer = "container:DDCKit.xcodeproj">
+               BuildableName = "DDCSpec.xctest"
+               BlueprintName = "DDCSpec"
+               ReferencedContainer = "container:DDC.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DDCKit::DDCKit"
-            BuildableName = "DDCKit.framework"
-            BlueprintName = "DDCKit"
-            ReferencedContainer = "container:DDCKit.xcodeproj">
+            BlueprintIdentifier = "DDC::DDC"
+            BuildableName = "DDC.framework"
+            BlueprintName = "DDC"
+            ReferencedContainer = "container:DDC.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -64,10 +64,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DDCKit::DDCKit"
-            BuildableName = "DDCKit.framework"
-            BlueprintName = "DDCKit"
-            ReferencedContainer = "container:DDCKit.xcodeproj">
+            BlueprintIdentifier = "DDC::DDC"
+            BuildableName = "DDC.framework"
+            BlueprintName = "DDC"
+            ReferencedContainer = "container:DDC.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -82,10 +82,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DDCKit::DDCKit"
-            BuildableName = "DDCKit.framework"
-            BlueprintName = "DDCKit"
-            ReferencedContainer = "container:DDCKit.xcodeproj">
+            BlueprintIdentifier = "DDC::DDC"
+            BuildableName = "DDC.framework"
+            BlueprintName = "DDC"
+            ReferencedContainer = "container:DDC.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

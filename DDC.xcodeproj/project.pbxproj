@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		28225496207832D800D119A2 /* EDIDSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28225495207832D800D119A2 /* EDIDSpec.swift */; };
-		28225498207832D800D119A2 /* DDCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "DDCKit::DDCKit::Product" /* DDCKit.framework */; };
+		28225498207832D800D119A2 /* DDC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "DDC::DDC::Product" /* DDC.framework */; };
 		2875061720786F5A00F8D7BD /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28320782DE6002A3BA6 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2875061820786F5A00F8D7BD /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28420782DE6002A3BA6 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2899042822601241004CBB6F /* DDCSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2899042722601241004CBB6F /* DDCSpec.swift */; };
-		2899042B226018D4004CBB6F /* DDCKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 2899042A226018D4004CBB6F /* DDCKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2899042B226018D4004CBB6F /* DDC.h in Headers */ = {isa = PBXBuildFile; fileRef = 2899042A226018D4004CBB6F /* DDC.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		OBJ_59 /* DDC.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* DDC.swift */; };
 		OBJ_60 /* EDID.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* EDID.swift */; };
 /* End PBXBuildFile section */
@@ -22,8 +22,8 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = "DDCKit::DDCKit";
-			remoteInfo = DDCKit;
+			remoteGlobalIDString = "DDC::DDC";
+			remoteInfo = DDC;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -42,15 +42,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		28225493207832D800D119A2 /* DDCKitSpec.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DDCKitSpec.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		28225493207832D800D119A2 /* DDCSpec.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DDCSpec.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		28225495207832D800D119A2 /* EDIDSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EDIDSpec.swift; sourceTree = "<group>"; };
 		28225497207832D800D119A2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		284EB28320782DE6002A3BA6 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/Mac/Nimble.framework; sourceTree = "<group>"; };
 		284EB28420782DE6002A3BA6 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/Mac/Quick.framework; sourceTree = "<group>"; };
 		2899042722601241004CBB6F /* DDCSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDCSpec.swift; sourceTree = "<group>"; };
-		2899042A226018D4004CBB6F /* DDCKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDCKit.h; sourceTree = "<group>"; };
+		2899042A226018D4004CBB6F /* DDC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDC.h; sourceTree = "<group>"; };
 		28990432226025F6004CBB6F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		"DDCKit::DDCKit::Product" /* DDCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DDCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"DDC::DDC::Product" /* DDC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DDC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* EDID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EDID.swift; sourceTree = "<group>"; };
 		OBJ_9 /* DDC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -60,7 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				28225498207832D800D119A2 /* DDCKit.framework in Frameworks */,
+				28225498207832D800D119A2 /* DDC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,14 +74,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		28225494207832D800D119A2 /* DDCKitSpec */ = {
+		28225494207832D800D119A2 /* DDCSpec */ = {
 			isa = PBXGroup;
 			children = (
 				28225495207832D800D119A2 /* EDIDSpec.swift */,
 				28225497207832D800D119A2 /* Info.plist */,
 				2899042722601241004CBB6F /* DDCSpec.swift */,
 			);
-			path = DDCKitSpec;
+			path = DDCSpec;
 			sourceTree = "<group>";
 		};
 		284EB28220782DE6002A3BA6 /* Frameworks */ = {
@@ -96,8 +96,8 @@
 		OBJ_49 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				"DDCKit::DDCKit::Product" /* DDCKit.framework */,
-				28225493207832D800D119A2 /* DDCKitSpec.xctest */,
+				"DDC::DDC::Product" /* DDC.framework */,
+				28225493207832D800D119A2 /* DDCSpec.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -105,22 +105,22 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
-				OBJ_8 /* DDCKit */,
-				28225494207832D800D119A2 /* DDCKitSpec */,
+				OBJ_8 /* DDC */,
+				28225494207832D800D119A2 /* DDCSpec */,
 				284EB28220782DE6002A3BA6 /* Frameworks */,
 				OBJ_49 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		OBJ_8 /* DDCKit */ = {
+		OBJ_8 /* DDC */ = {
 			isa = PBXGroup;
 			children = (
-				2899042A226018D4004CBB6F /* DDCKit.h */,
+				2899042A226018D4004CBB6F /* DDC.h */,
 				OBJ_9 /* DDC.swift */,
 				OBJ_10 /* EDID.swift */,
 				28990432226025F6004CBB6F /* Info.plist */,
 			);
-			path = DDCKit;
+			path = DDC;
 			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
@@ -130,16 +130,16 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2899042B226018D4004CBB6F /* DDCKit.h in Headers */,
+				2899042B226018D4004CBB6F /* DDC.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		28225492207832D800D119A2 /* DDCKitSpec */ = {
+		28225492207832D800D119A2 /* DDCSpec */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2822549D207832D800D119A2 /* Build configuration list for PBXNativeTarget "DDCKitSpec" */;
+			buildConfigurationList = 2822549D207832D800D119A2 /* Build configuration list for PBXNativeTarget "DDCSpec" */;
 			buildPhases = (
 				2822548F207832D800D119A2 /* Sources */,
 				28225490207832D800D119A2 /* Frameworks */,
@@ -151,14 +151,14 @@
 			dependencies = (
 				2822549A207832D800D119A2 /* PBXTargetDependency */,
 			);
-			name = DDCKitSpec;
+			name = DDCSpec;
 			productName = DDCSpec;
-			productReference = 28225493207832D800D119A2 /* DDCKitSpec.xctest */;
+			productReference = 28225493207832D800D119A2 /* DDCSpec.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		"DDCKit::DDCKit" /* DDCKit */ = {
+		"DDC::DDC" /* DDC */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_55 /* Build configuration list for PBXNativeTarget "DDCKit" */;
+			buildConfigurationList = OBJ_55 /* Build configuration list for PBXNativeTarget "DDC" */;
 			buildPhases = (
 				284EB28820782E33002A3BA6 /* Headers */,
 				OBJ_58 /* Sources */,
@@ -168,9 +168,9 @@
 			);
 			dependencies = (
 			);
-			name = DDCKit;
-			productName = DDCKit;
-			productReference = "DDCKit::DDCKit::Product" /* DDCKit.framework */;
+			name = DDC;
+			productName = DDC;
+			productReference = "DDC::DDC::Product" /* DDC.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -188,13 +188,13 @@
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Manual;
 					};
-					"DDCKit::DDCKit" = {
+					"DDC::DDC" = {
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Manual;
 					};
 				};
 			};
-			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "DDCKit" */;
+			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "DDC" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -207,8 +207,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				"DDCKit::DDCKit" /* DDCKit */,
-				28225492207832D800D119A2 /* DDCKitSpec */,
+				"DDC::DDC" /* DDC */,
+				28225492207832D800D119A2 /* DDCSpec */,
 			);
 		};
 /* End PBXProject section */
@@ -247,7 +247,7 @@
 /* Begin PBXTargetDependency section */
 		2822549A207832D800D119A2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "DDCKit::DDCKit" /* DDCKit */;
+			target = "DDC::DDC" /* DDC */;
 			targetProxy = 28225499207832D800D119A2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -432,20 +432,20 @@
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = "$(SRCROOT)/DDCKit/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/DDC/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = DDCKit;
+				PRODUCT_BUNDLE_IDENTIFIER = DDC;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
-				SWIFT_OBJC_BRIDGING_HEADER = DDCKit/DDCKit.h;
+				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = DDCKit;
+				TARGET_NAME = DDC;
 			};
 			name = Debug;
 		};
@@ -461,27 +461,27 @@
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = "$(SRCROOT)/DDCKit/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/DDC/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = DDCKit;
+				PRODUCT_BUNDLE_IDENTIFIER = DDC;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
-				SWIFT_OBJC_BRIDGING_HEADER = DDCKit/DDCKit.h;
+				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = DDCKit;
+				TARGET_NAME = DDC;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2822549D207832D800D119A2 /* Build configuration list for PBXNativeTarget "DDCKitSpec" */ = {
+		2822549D207832D800D119A2 /* Build configuration list for PBXNativeTarget "DDCSpec" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2822549B207832D800D119A2 /* Debug */,
@@ -490,7 +490,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		OBJ_2 /* Build configuration list for PBXProject "DDCKit" */ = {
+		OBJ_2 /* Build configuration list for PBXProject "DDC" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				OBJ_3 /* Debug */,
@@ -499,7 +499,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		OBJ_55 /* Build configuration list for PBXNativeTarget "DDCKit" */ = {
+		OBJ_55 /* Build configuration list for PBXNativeTarget "DDC" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				OBJ_56 /* Debug */,
