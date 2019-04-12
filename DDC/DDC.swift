@@ -113,6 +113,10 @@ public class DDC {
   let framebuffer: io_service_t
   let replyTransactionType: IOOptionBits
 
+  deinit {
+    IOObjectRelease(self.framebuffer)
+  }
+
   public init?(for displayId: CGDirectDisplayID, withReplyTransactionType replyTransactionType: IOOptionBits? = nil) {
     self.displayId = displayId
 
@@ -376,6 +380,10 @@ public class DDC {
   public func edid() -> EDID? {
     guard let servicePort = DDC.servicePort(from: displayId) else {
       return nil
+    }
+
+    defer {
+      IOObjectRelease(servicePort)
     }
 
     let dict = IODisplayCreateInfoDictionary(servicePort, IOOptionBits(kIODisplayOnlyPreferredName)).takeRetainedValue() as NSDictionary
