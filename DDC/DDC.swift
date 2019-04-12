@@ -114,7 +114,7 @@ public class DDC {
   let replyTransactionType: IOOptionBits
 
   deinit {
-    IOObjectRelease(self.framebuffer)
+    assert(IOObjectRelease(self.framebuffer) == KERN_SUCCESS)
   }
 
   public init?(for displayId: CGDirectDisplayID, withReplyTransactionType replyTransactionType: IOOptionBits? = nil) {
@@ -247,14 +247,17 @@ public class DDC {
   }
 
   private static func supportedTransactionType() -> IOOptionBits? {
-    var ioObjects = io_iterator_t()
+    var ioIterator = io_iterator_t()
 
-    guard IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceNameMatching("IOFramebufferI2CInterface"), &ioObjects) == KERN_SUCCESS else {
+    guard IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceNameMatching("IOFramebufferI2CInterface"), &ioIterator) == KERN_SUCCESS else {
       return nil
     }
 
-    while case let ioService = IOIteratorNext(ioObjects), ioService != MACH_PORT_NULL {
+    defer {
+      assert(IOObjectRelease(ioIterator) == KERN_SUCCESS)
+    }
 
+    while case let ioService = IOIteratorNext(ioIterator), ioService != 0 {
       var serviceProperties: Unmanaged<CFMutableDictionary>?
 
       guard IORegistryEntryCreateCFProperties(ioService, &serviceProperties, kCFAllocatorDefault, IOOptionBits()) == KERN_SUCCESS, serviceProperties != nil else {
@@ -320,15 +323,19 @@ public class DDC {
   }
 
   static func servicePort(from displayId: CGDirectDisplayID) -> io_object_t? {
-    var iter = io_iterator_t()
-    
-    let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &iter)
+    var servicePortIterator = io_iterator_t()
+
+    let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &servicePortIterator)
 
     guard status == KERN_SUCCESS else {
       return nil
     }
 
-    while case let servicePort = IOIteratorNext(iter), servicePort != MACH_PORT_NULL {
+    defer {
+      assert(IOObjectRelease(servicePortIterator) == KERN_SUCCESS)
+    }
+
+    while case let servicePort = IOIteratorNext(servicePortIterator), servicePort != 0 {
       let dict = IODisplayCreateInfoDictionary(servicePort, IOOptionBits(kIODisplayOnlyPreferredName)).takeRetainedValue() as NSDictionary
 
       guard let vendorId = dict[kDisplayVendorID] as? CFIndex, CGDisplayVendorNumber(displayId) == vendorId else {
@@ -352,7 +359,7 @@ public class DDC {
         print("Vendor ID: \(vendorId), Product ID: \(productId), Serial Number: \(serialNumber)")
         print("Unit Number: \(CGDisplayUnitNumber(displayId))")
         print("Service Port: \(servicePort)")
-        print("Iterator Number: \(iter)")
+        print("Iterator Number: \(servicePortIterator)")
       #endif
 
       return servicePort
@@ -384,7 +391,7 @@ public class DDC {
     }
 
     defer {
-      IOObjectRelease(servicePort)
+      assert(IOObjectRelease(servicePort) == KERN_SUCCESS)
     }
 
     let dict = IODisplayCreateInfoDictionary(servicePort, IOOptionBits(kIODisplayOnlyPreferredName)).takeRetainedValue() as NSDictionary
