@@ -9,10 +9,10 @@
 /* Begin PBXBuildFile section */
 		28225496207832D800D119A2 /* EDIDSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28225495207832D800D119A2 /* EDIDSpec.swift */; };
 		28225498207832D800D119A2 /* DDC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "DDC::DDC::Product" /* DDC.framework */; };
-		284EB28920782E37002A3BA6 /* DDC.h in Headers */ = {isa = PBXBuildFile; fileRef = 284EB28720782E27002A3BA6 /* DDC.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2875061720786F5A00F8D7BD /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28320782DE6002A3BA6 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2875061820786F5A00F8D7BD /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28420782DE6002A3BA6 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2899042822601241004CBB6F /* DDCSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2899042722601241004CBB6F /* DDCSpec.swift */; };
+		2899042B226018D4004CBB6F /* DDC.h in Headers */ = {isa = PBXBuildFile; fileRef = 2899042A226018D4004CBB6F /* DDC.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		OBJ_59 /* DDC.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* DDC.swift */; };
 		OBJ_60 /* EDID.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* EDID.swift */; };
 /* End PBXBuildFile section */
@@ -47,8 +47,8 @@
 		28225497207832D800D119A2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		284EB28320782DE6002A3BA6 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/Mac/Nimble.framework; sourceTree = "<group>"; };
 		284EB28420782DE6002A3BA6 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/Mac/Quick.framework; sourceTree = "<group>"; };
-		284EB28720782E27002A3BA6 /* DDC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDC.h; sourceTree = "<group>"; };
 		2899042722601241004CBB6F /* DDCSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDCSpec.swift; sourceTree = "<group>"; };
+		2899042A226018D4004CBB6F /* DDC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDC.h; sourceTree = "<group>"; };
 		"DDC::DDC::Product" /* DDC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DDC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* EDID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EDID.swift; sourceTree = "<group>"; };
 		OBJ_9 /* DDC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDC.swift; sourceTree = "<group>"; };
@@ -114,7 +114,7 @@
 		OBJ_8 /* DDC */ = {
 			isa = PBXGroup;
 			children = (
-				284EB28720782E27002A3BA6 /* DDC.h */,
+				2899042A226018D4004CBB6F /* DDC.h */,
 				OBJ_9 /* DDC.swift */,
 				OBJ_10 /* EDID.swift */,
 			);
@@ -128,7 +128,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				284EB28920782E37002A3BA6 /* DDC.h in Headers */,
+				2899042B226018D4004CBB6F /* DDC.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -311,6 +311,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = reitermarkus.DDCSpec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 			};
@@ -372,6 +373,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = reitermarkus.DDCSpec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -440,6 +442,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DDC;
@@ -468,6 +471,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DDC;
