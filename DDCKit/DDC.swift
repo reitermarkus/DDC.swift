@@ -54,7 +54,7 @@ public class DDC {
     case sharpness
     case blackStabilizer
 
-    var value: UInt8 {
+    public var value: UInt8 {
       switch self {
         case .reset:                       return 0x04
         case .resetBrighnessAndContrast:   return 0x05
