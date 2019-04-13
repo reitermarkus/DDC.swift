@@ -235,7 +235,7 @@ public class DDC {
       }
 
       if errorRecoveryWaitTime > 0 {
-        DispatchQueue(label: "ddc-\(displayId)").sync {
+        DispatchQueue(label: "ddc-display-\(displayId)").sync {
           guard usleep(errorRecoveryWaitTime) == 0 else {
             return
           }
@@ -281,7 +281,7 @@ public class DDC {
   }
 
   static func send(request: inout IOI2CRequest, to framebuffer: io_service_t) -> Bool {
-    return DispatchQueue(label: "ddc-\(framebuffer)").sync {
+    return DispatchQueue(label: "ddc-framebuffer-\(framebuffer)").sync {
       var busCount: IOItemCount = 0
 
       guard IOFBGetI2CInterfaceCount(framebuffer, &busCount) == KERN_SUCCESS else {
