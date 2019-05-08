@@ -213,7 +213,7 @@ public class DDC {
       request.sendBuffer = withUnsafePointer(to: &data[0]) { UInt(bitPattern: $0) }
       request.replyBuffer = withUnsafePointer(to: &replyData[0]) { UInt(bitPattern: $0) }
 
-      guard DDC.send(request: &request, to: self.framebuffer) else  {
+      guard DDC.send(request: &request, to: self.framebuffer) else {
         continue
       }
 
