@@ -224,9 +224,10 @@ public class DDC {
           replyData[10] == (UInt8(request.replyAddress) ^ UInt8(request.replySubAddress) ^ replyData[1] ^ replyData[2] ^ replyData[3] ^ replyData[4] ^ replyData[5] ^ replyData[6] ^ replyData[7] ^ replyData[8] ^ replyData[9])
 
       if checksum {
-        #if DEBUG
-          print("Took \(i) tries.")
-        #endif
+        if i > 1 {
+          os_log("Reading %{public}@ took %d tries.", type: .debug, String(reflecting: command), i)
+        }
+
         let maxValue = replyData[7]
         let currentValue = replyData[9]
         return (currentValue, maxValue)
