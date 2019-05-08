@@ -353,17 +353,27 @@ public class DDC {
         continue
       }
 
-      #if DEBUG
-        var name: Int8 = 0
-        IORegistryEntryGetName(servicePort, &name)
-        print("Framebuffer: \(name)")
-        let location = dict.object(forKey: kIODisplayLocationKey) ?? "N/A"
-        print("Location: \(location)")
-        print("Vendor ID: \(vendorId), Product ID: \(productId), Serial Number: \(serialNumber)")
-        print("Unit Number: \(CGDisplayUnitNumber(displayId))")
-        print("Service Port: \(servicePort)")
-        print("Iterator Number: \(servicePortIterator)")
-      #endif
+      var name: io_name_t?
+      let size = MemoryLayout.size(ofValue: name)
+      if let framebufferName = (withUnsafeMutablePointer(to: &name) {
+        $0.withMemoryRebound(to: Int8.self, capacity: size / MemoryLayout<Int8>.size) { (n) -> String? in
+          guard IORegistryEntryGetName(servicePort, n) == kIOReturnSuccess else {
+            return nil
+          }
+
+          return n.withMemoryRebound(to: CChar.self, capacity: size / MemoryLayout<CChar>.size) { String.init(cString: $0) }
+        }
+      }) {
+        os_log("Framebuffer: %{public}@", type: .debug, framebufferName)
+      }
+
+      if let location = dict.object(forKey: kIODisplayLocationKey) as? String {
+        os_log("Location: %{public}@", type: .debug, location)
+      }
+
+      os_log("Vendor ID: %d, Product ID: %d, Serial Number: %d", type: .debug, vendorId, productId, serialNumber)
+      os_log("Unit Number: %d", type: .debug, CGDisplayUnitNumber(displayId))
+      os_log("Service Port: %d", type: .debug, servicePort)
 
       return servicePort
     }

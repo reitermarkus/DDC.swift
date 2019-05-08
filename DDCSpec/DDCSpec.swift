@@ -3,7 +3,7 @@ import XCTest
 import Quick
 import Nimble
 
-import DDC
+@testable import DDC
 
 func ddcToEdid() {
   let displayID: CGDirectDisplayID = 0
@@ -16,6 +16,15 @@ func ddcToEdid() {
 }
 
 class DDCSpec: QuickSpec {
+  override func spec() {
+    describe(".servicePort()") {
+      it("returns the service port") {
+        guard let screen = NSScreen.main else {
+          return
+        }
 
-
+        expect(DDC(for: screen)).notTo(beNil())
+      }
+    }
+  }
 }
