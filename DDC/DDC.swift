@@ -1,6 +1,7 @@
 import Cocoa
 import Foundation
 import IOKit
+import os.log
 
 public class DDC {
   public enum Command {
@@ -131,6 +132,7 @@ public class DDC {
     } else if let replyTransactionType = DDC.supportedTransactionType() {
       self.replyTransactionType = replyTransactionType
     } else {
+      os_log("No supported reply transaction type found for display with ID %d.", type: .error, displayId)
       return nil
     }
   }
@@ -328,6 +330,7 @@ public class DDC {
     let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &servicePortIterator)
 
     guard status == KERN_SUCCESS else {
+      os_log("No matching services found for display with ID %d.", type: .error, displayId)
       return nil
     }
 
@@ -365,6 +368,7 @@ public class DDC {
       return servicePort
     }
 
+    os_log("No service port found for display with ID %d.", type: .error, displayId)
     return nil
   }
 
@@ -379,6 +383,7 @@ public class DDC {
 
     var busCount: IOItemCount = 0
     guard IOFBGetI2CInterfaceCount(servicePort, &busCount) == KERN_SUCCESS, busCount >= 1 else {
+      os_log("No framebuffer port found for display with ID %d.", type: .error, displayId)
       return nil
     }
 
@@ -401,6 +406,7 @@ public class DDC {
       return EDID(data: bytes)
     }
 
+    os_log("No EDID entry found for display with ID %d.", type: .error, self.displayId)
     return nil
   }
 
