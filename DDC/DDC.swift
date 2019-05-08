@@ -234,6 +234,7 @@ public class DDC {
       }
 
       if request.result == kIOReturnUnsupportedMode {
+        os_log("Reading %{public}@ is unsupported.", type: .error, String(reflecting: command))
         return nil
       }
 
