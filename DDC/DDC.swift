@@ -111,6 +111,7 @@ public class DDC {
   }
 
   static var dispatchGroups: [CGDirectDisplayID: (DispatchQueue, DispatchGroup)] = [:]
+  static var framebufferDispatchGroups: [io_service_t: (DispatchQueue, DispatchGroup)] = [:]
 
   let displayId: CGDirectDisplayID
   let framebuffer: io_service_t
@@ -301,45 +302,58 @@ public class DDC {
   }
 
   static func send(request: inout IOI2CRequest, to framebuffer: io_service_t) -> Bool {
-    return DispatchQueue(label: "ddc-framebuffer-\(framebuffer)").sync {
-      var busCount: IOItemCount = 0
+    if DDC.framebufferDispatchGroups[framebuffer] == nil {
+      DDC.framebufferDispatchGroups[framebuffer] = (DispatchQueue(label: "ddc-framebuffer-\(framebuffer)"), DispatchGroup())
+    }
 
-      guard IOFBGetI2CInterfaceCount(framebuffer, &busCount) == KERN_SUCCESS else {
-        return false
+    let (queue, group) = DDC.framebufferDispatchGroups[framebuffer]!
+
+    group.wait()
+    group.enter()
+
+    defer {
+      if request.replyTransactionType == kIOI2CNoTransactionType {
+        queue.async {
+          usleep(20000)
+          group.leave()
+        }
+      } else {
+        group.leave()
       }
+    }
 
-      var bus: IOOptionBits = 0
-      while bus < busCount {
-        defer { bus += 1 }
+    var busCount: IOItemCount = 0
 
-        var interface = io_service_t()
-
-        guard IOFBCopyI2CInterfaceForBus(framebuffer, bus, &interface) == KERN_SUCCESS else {
-          continue
-        }
-
-        var connect: IOI2CConnectRef?
-        guard IOI2CInterfaceOpen(interface, IOOptionBits(), &connect) == KERN_SUCCESS else {
-          continue
-        }
-
-        defer { IOI2CInterfaceClose(connect, IOOptionBits()) }
-
-        guard IOI2CSendRequest(connect, IOOptionBits(), &request) == KERN_SUCCESS else {
-          continue
-        }
-
-        defer {
-          if request.replyTransactionType == kIOI2CNoTransactionType {
-            usleep(20000)
-          }
-        }
-
-        return request.result == KERN_SUCCESS
-      }
-
+    guard IOFBGetI2CInterfaceCount(framebuffer, &busCount) == KERN_SUCCESS else {
+      os_log("Failed to get interface count for framebuffer with ID %d.", type: .error, framebuffer)
       return false
     }
+
+    for bus: IOOptionBits in 0..<busCount {
+      var interface = io_service_t()
+
+      guard IOFBCopyI2CInterfaceForBus(framebuffer, bus, &interface) == KERN_SUCCESS else {
+        os_log("Failed to get interface %d for framebuffer with ID %d.", type: .error, bus, framebuffer)
+        continue
+      }
+
+      var connect: IOI2CConnectRef?
+      guard IOI2CInterfaceOpen(interface, IOOptionBits(), &connect) == KERN_SUCCESS else {
+        os_log("Failed to connect to interface %d for framebuffer with ID %d.", type: .error, bus, framebuffer)
+        continue
+      }
+
+      defer { IOI2CInterfaceClose(connect, IOOptionBits()) }
+
+      guard IOI2CSendRequest(connect, IOOptionBits(), &request) == KERN_SUCCESS else {
+        os_log("Failed to send request to interface %d for framebuffer with ID %d.", type: .error, bus, framebuffer)
+        continue
+      }
+
+      return request.result == KERN_SUCCESS
+    }
+
+    return false
   }
 
   static func servicePort(from displayId: CGDirectDisplayID) -> io_object_t? {
