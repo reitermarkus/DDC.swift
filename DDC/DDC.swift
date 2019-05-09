@@ -180,6 +180,43 @@ public class DDC {
     return DDC.send(request: &request, to: self.framebuffer)
   }
 
+  // Send an “Identification Request” to check if DDC/CI is supported.
+  public func supported() -> Bool {
+    var data: [UInt8] = [
+      0x51,
+      0x81,
+      0xF1,
+      0x6E,
+    ]
+
+    data[3] ^= data[0] ^ data[1] ^ data[2]
+
+    var replyData: [UInt8] = Array(repeating: 0, count: 3)
+
+    var request = IOI2CRequest()
+
+    request.commFlags = 0
+    request.sendAddress = 0x6E
+    request.sendTransactionType = IOOptionBits(kIOI2CSimpleTransactionType)
+    request.sendBytes = UInt32(data.count)
+
+    request.replyTransactionType = self.replyTransactionType
+
+    request.replyAddress = 0x6F
+    request.replySubAddress = 0x51
+    request.replyBytes = UInt32(replyData.count)
+
+    request.sendBuffer = withUnsafePointer(to: &data[0]) { vm_address_t(bitPattern: $0) }
+    request.replyBuffer = withUnsafePointer(to: &replyData[0]) { vm_address_t(bitPattern: $0) }
+
+    guard DDC.send(request: &request, to: self.framebuffer) else {
+      return false
+    }
+
+    // If a “Null Message” is returned, DDC/CI is supported.
+    return replyData[0] == request.sendAddress && replyData[1] == 0x80 && replyData[2] == 0xBE
+  }
+
   public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
     return self.read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime)
   }
