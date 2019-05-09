@@ -116,6 +116,7 @@ public class DDC {
   let displayId: CGDirectDisplayID
   let framebuffer: io_service_t
   let replyTransactionType: IOOptionBits
+  var enabled: Bool = false
 
   deinit {
     assert(IOObjectRelease(self.framebuffer) == KERN_SUCCESS)
@@ -153,77 +154,62 @@ public class DDC {
   }
 
   public func write(command: UInt8, value: UInt8) -> Bool {
-    var data: [UInt8] = [
-      0x51,
-      0x84,
-      0x03,
-      command,
-      UInt8(value >> 8),
-      UInt8(value & 0xFF),
-      0x6E,
-    ]
-
-    data[6] ^= data[0] ^ data[1] ^ data[2] ^ data[3] ^ data[4] ^ data[5]
-
-    var request = IOI2CRequest()
-
-    request.commFlags = 0
-
-    request.sendAddress = 0x6E
-    request.sendTransactionType = IOOptionBits(kIOI2CSimpleTransactionType)
-    request.sendBuffer = withUnsafePointer(to: &data[0]) { vm_address_t(bitPattern: $0) }
-    request.sendBytes = UInt32(data.count)
-
-    request.replyTransactionType = IOOptionBits(kIOI2CNoTransactionType)
-    request.replyBytes = 0
-
-    return DDC.send(request: &request, to: self.framebuffer)
+    let message: [UInt8] = [0x03, command, UInt8(value >> 8), UInt8(value & 0xFF)]
+    var replyData: [UInt8] = []
+    return self.sendMessage(message, replyData: &replyData, interval: 40000) != nil
   }
 
-  // Send an “Identification Request” to check if DDC/CI is supported.
-  public func supported() -> Bool {
-    var data: [UInt8] = [
-      0x51,
-      0x81,
-      0xF1,
-      0x6E,
-    ]
+  public func enableAppReport(_ enable: Bool = true) -> Bool {
+    let message: [UInt8] = [0xF5, enable ? 0x01 : 0x00]
+    var replyData: [UInt8] = []
 
-    data[3] ^= data[0] ^ data[1] ^ data[2]
-
-    var replyData: [UInt8] = Array(repeating: 0, count: 3)
-
-    var request = IOI2CRequest()
-
-    request.commFlags = 0
-    request.sendAddress = 0x6E
-    request.sendTransactionType = IOOptionBits(kIOI2CSimpleTransactionType)
-    request.sendBytes = UInt32(data.count)
-
-    request.replyTransactionType = self.replyTransactionType
-
-    request.replyAddress = 0x6F
-    request.replySubAddress = 0x51
-    request.replyBytes = UInt32(replyData.count)
-
-    request.sendBuffer = withUnsafePointer(to: &data[0]) { vm_address_t(bitPattern: $0) }
-    request.replyBuffer = withUnsafePointer(to: &replyData[0]) { vm_address_t(bitPattern: $0) }
-
-    guard DDC.send(request: &request, to: self.framebuffer) else {
+    guard self.sendMessage(message, replyData: &replyData) != nil else {
       return false
     }
 
-    // If a “Null Message” is returned, DDC/CI is supported.
-    return replyData[0] == request.sendAddress && replyData[1] == 0x80 && replyData[2] == 0xBE
+    self.enabled = true
+    return true
   }
 
-  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
-    return self.read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime)
+  public func capability(minReplyDelay: UInt64? = nil) -> String? {
+    var block_length = 0
+
+    var cString: [UInt8] = []
+
+    var tries = 0
+
+    while true {
+      let offset = cString.count
+      let message: [UInt8] = [0xF3, UInt8(offset >> 8), UInt8(offset & 0xFF)]
+      var replyData: [UInt8] = Array(repeating: 0, count: 38)
+
+      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, interval: 50000) != nil else {
+        return nil
+      }
+
+      block_length = Int(replyData[1] & 0x7F) - 3
+
+      if block_length < 0 {
+        tries += 1
+
+        if tries >= 3 {
+          return nil
+        }
+
+        continue
+      }
+
+      tries = 0
+
+      cString.append(contentsOf: replyData[5..<(block_length + 5)])
+
+      if block_length < 32 {
+        return String(cString: cString)
+      }
+    }
   }
 
-  public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
-    assert(tries > 0)
-
+  public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, interval: UInt32 = 0) -> IOI2CRequest? {
     if DDC.dispatchGroups[self.displayId] == nil {
       DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(self.displayId)"), DispatchGroup())
     }
@@ -235,21 +221,19 @@ public class DDC {
 
     defer {
       queue.async {
+        if interval > 0 {
+          usleep(interval)
+        }
+
         group.leave()
       }
     }
 
-    var data: [UInt8] = [
-      0x51,
-      0x82,
-      0x01,
-      command,
-      0x6E,
-    ]
+    var data: [UInt8] = [UInt8(0x51), UInt8(0x80 + message.count)] + message + [UInt8(0x6E)]
 
-    data[4] ^= data[0] ^ data[1] ^ data[2] ^ data[3]
-
-    var replyData: [UInt8] = Array(repeating: 0, count: 11)
+    for i in 0..<data.count {
+      data[data.count - 1] ^= data[i]
+    }
 
     var request = IOI2CRequest()
 
@@ -257,50 +241,87 @@ public class DDC {
     request.sendAddress = 0x6E
     request.sendTransactionType = IOOptionBits(kIOI2CSimpleTransactionType)
     request.sendBytes = UInt32(data.count)
+    request.sendBuffer = withUnsafePointer(to: &data[0]) { vm_address_t(bitPattern: $0) }
 
-    request.minReplyDelay = minReplyDelay
+    if replyData.count == 0 {
+      request.replyTransactionType = IOOptionBits(kIOI2CNoTransactionType)
+      request.replyBytes = 0
+    } else {
+      request.minReplyDelay = minReplyDelay ?? 10
 
-    request.replyTransactionType = self.replyTransactionType
+      request.replyAddress = 0x6F
+      request.replySubAddress = 0x51
+      request.replyTransactionType = self.replyTransactionType
+      request.replyBytes = UInt32(replyData.count)
+      request.replyBuffer = withUnsafePointer(to: &replyData[0]) { vm_address_t(bitPattern: $0) }
+    }
 
-    request.replyAddress = 0x6F
-    request.replySubAddress = 0x51
-    request.replyBytes = UInt32(replyData.count)
+    guard DDC.send(request: &request, to: self.framebuffer) else {
+      return nil
+    }
+
+    if replyData.count > 0 {
+      let checksum = replyData.last!
+      var calculated = UInt8(0x50)
+
+      for i in 0..<(replyData.count - 1) {
+        calculated ^= replyData[i]
+      }
+
+      guard checksum == calculated else {
+        os_log("Checksum of reply does not match. Expected %d, got %d.", type: .error, checksum, calculated)
+        return nil
+      }
+    }
+
+    return request
+  }
+
+  // Send an “Identification Request” to check if DDC/CI is supported.
+  public func supported() -> Bool {
+    var replyData: [UInt8] = Array(repeating: 0, count: 3)
+
+    guard let request = self.sendMessage([0xF1], replyData: &replyData) else {
+      return false
+    }
+
+    // If a “Null Message” is returned, DDC/CI is supported.
+    return replyData == [UInt8(request.sendAddress), 0x80, 0xBE]
+  }
+
+  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
+    return self.read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay)
+  }
+
+  public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
+    assert(tries > 0)
+
+    let message: [UInt8] = [0x01, command]
+
+    var replyData: [UInt8] = Array(repeating: 0, count: 11)
 
     for i in 1...tries {
-      request.sendBuffer = withUnsafePointer(to: &data[0]) { vm_address_t(bitPattern: $0) }
-      request.replyBuffer = withUnsafePointer(to: &replyData[0]) { vm_address_t(bitPattern: $0) }
-
-      guard DDC.send(request: &request, to: self.framebuffer) else {
+      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, interval: 40000) != nil else {
         continue
       }
 
-      let checksum =
-        replyData[ 0] == request.sendAddress &&
-        replyData[ 2] == 0x02 &&
-        replyData[ 4] == command &&
-        replyData[10] == (UInt8(request.replyAddress) ^ UInt8(request.replySubAddress) ^ replyData[1] ^ replyData[2] ^ replyData[3] ^ replyData[4] ^ replyData[5] ^ replyData[6] ^ replyData[7] ^ replyData[8] ^ replyData[9])
-
-      let commandSupported = replyData[3] == 0x00
-      os_log("Reading %{public}@ supported: %{public}@", type: .debug, String(reflecting: command), String(commandSupported))
-
-      if checksum {
-        if i > 1 {
-          os_log("Reading %{public}@ took %d tries.", type: .debug, String(reflecting: command), i)
-        }
-
-        let maxValue = replyData[7]
-        let currentValue = replyData[9]
-        return (currentValue, maxValue)
+      if replyData[2] != 0x02 {
+        os_log("Got wrong response type for %{public}@. Expected %d, got %d.", type: .debug, String(reflecting: command), 0x02, replyData[2])
+        continue
       }
 
-      if request.result == kIOReturnUnsupportedMode {
-        os_log("Reading %{public}@ is unsupported.", type: .error, String(reflecting: command))
+      if replyData[3] != 0x00 {
+        os_log("Reading %{public}@ is not supported.", type: .debug, String(reflecting: command))
         return nil
       }
 
-      if errorRecoveryWaitTime > 0, i != tries {
-        assert(usleep(errorRecoveryWaitTime) == 0)
+      if i > 1 {
+        os_log("Reading %{public}@ took %d tries.", type: .debug, String(reflecting: command), i)
       }
+
+      let maxValue = UInt16(replyData[6] << 8) + UInt16(replyData[7])
+      let currentValue = UInt16(replyData[8] << 8) + UInt16(replyData[9])
+      return (currentValue, maxValue)
     }
 
     os_log("Reading %{public}@ failed.", type: .error, String(reflecting: command))
