@@ -247,6 +247,7 @@ public class DDC {
       }
     }
 
+    os_log("Reading %{public}@ failed.", type: .error, String(reflecting: command))
     return nil
   }
 
