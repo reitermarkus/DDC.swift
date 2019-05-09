@@ -156,7 +156,7 @@ public class DDC {
   public func write(command: UInt8, value: UInt8) -> Bool {
     let message: [UInt8] = [0x03, command, UInt8(value >> 8), UInt8(value & 0xFF)]
     var replyData: [UInt8] = []
-    return self.sendMessage(message, replyData: &replyData, interval: 40000) != nil
+    return self.sendMessage(message, replyData: &replyData, errorRecoveryWaitTime: 40000) != nil
   }
 
   public func enableAppReport(_ enable: Bool = true) -> Bool {
@@ -183,7 +183,7 @@ public class DDC {
       let message: [UInt8] = [0xF3, UInt8(offset >> 8), UInt8(offset & 0xFF)]
       var replyData: [UInt8] = Array(repeating: 0, count: 38)
 
-      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, interval: 50000) != nil else {
+      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: 50000) != nil else {
         return nil
       }
 
@@ -209,7 +209,9 @@ public class DDC {
     }
   }
 
-  public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, interval: UInt32 = 0) -> IOI2CRequest? {
+  public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32 = 0) -> IOI2CRequest? {
+    var errorRecoveryWaitTime = errorRecoveryWaitTime
+
     if DDC.dispatchGroups[self.displayId] == nil {
       DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(self.displayId)"), DispatchGroup())
     }
@@ -221,8 +223,8 @@ public class DDC {
 
     defer {
       queue.async {
-        if interval > 0 {
-          usleep(interval)
+        if errorRecoveryWaitTime > 0 {
+          usleep(errorRecoveryWaitTime)
         }
 
         group.leave()
@@ -274,6 +276,7 @@ public class DDC {
       }
     }
 
+    errorRecoveryWaitTime = 0
     return request
   }
 
@@ -301,7 +304,7 @@ public class DDC {
     var replyData: [UInt8] = Array(repeating: 0, count: 11)
 
     for i in 1...tries {
-      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, interval: 40000) != nil else {
+      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: 40000) != nil else {
         continue
       }
 
