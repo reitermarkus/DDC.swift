@@ -197,7 +197,6 @@ public class DDC {
 
     defer {
       queue.async {
-        assert(usleep(errorRecoveryWaitTime) == 0)
         group.leave()
       }
     }
