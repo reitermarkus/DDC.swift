@@ -445,7 +445,7 @@ public class DDC {
 
       var request = IOI2CRequest()
 
-      request.sendBytes = 0xA0
+      request.sendAddress = 0xA0
       request.sendTransactionType = IOOptionBits(kIOI2CSimpleTransactionType)
       request.sendBuffer = withUnsafePointer(to: &data[0]) { UInt(bitPattern: $0) }
       request.sendBytes = UInt32(data.count)
@@ -463,6 +463,7 @@ public class DDC {
     }
 
     guard let edidData = receiveBytes(128) else {
+      os_log("Failed receiving EDID for display with ID %d.", type: .error, self.displayId)
       return nil
     }
 
@@ -470,6 +471,7 @@ public class DDC {
 
     if extensions > 0 {
       guard let extensionData = receiveBytes(128 * extensions)  else {
+        os_log("Failed receiving EDID extensions for display with ID %d.", type: .error, self.displayId)
         return nil
       }
 
