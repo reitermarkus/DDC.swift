@@ -329,10 +329,12 @@ public class DDC {
 
       if let types = dict[kIOI2CTransactionTypesKey] as? UInt64 {
         if (1 << kIOI2CDDCciReplyTransactionType) & types != 0 {
+          os_log("kIOI2CDDCciReplyTransactionType is supported.", type: .debug)
           return IOOptionBits(kIOI2CDDCciReplyTransactionType)
         }
 
         if (1 << kIOI2CSimpleTransactionType) & types != 0 {
+          os_log("kIOI2CSimpleTransactionType is supported.", type: .debug)
           return IOOptionBits(kIOI2CSimpleTransactionType)
         }
       }
