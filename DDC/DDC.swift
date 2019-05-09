@@ -193,6 +193,7 @@ public class DDC {
     let (queue, group) = DDC.dispatchGroups[self.displayId]!
 
     group.wait()
+    group.enter()
 
     defer {
       queue.async {
@@ -232,9 +233,6 @@ public class DDC {
       request.sendBuffer = withUnsafePointer(to: &data[0]) { UInt(bitPattern: $0) }
       request.replyBuffer = withUnsafePointer(to: &replyData[0]) { UInt(bitPattern: $0) }
 
-      group.wait()
-      group.enter()
-
       guard DDC.send(request: &request, to: self.framebuffer) else {
         continue
       }
@@ -261,10 +259,7 @@ public class DDC {
       }
 
       if errorRecoveryWaitTime > 0 && i != tries {
-        queue.async {
-          assert(usleep(errorRecoveryWaitTime) == 0)
-          group.leave()
-        }
+        assert(usleep(errorRecoveryWaitTime) == 0)
       }
     }
 
