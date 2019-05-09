@@ -159,7 +159,7 @@ public class DDC {
       0x03,
       command,
       UInt8(value >> 8),
-      UInt8(value & 255),
+      UInt8(value & 0xFF),
       0x6E,
     ]
 
