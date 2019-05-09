@@ -171,7 +171,7 @@ public class DDC {
 
     request.sendAddress = 0x6E
     request.sendTransactionType = IOOptionBits(kIOI2CSimpleTransactionType)
-    request.sendBuffer = withUnsafePointer(to: &data[0]) { UInt(bitPattern: $0) }
+    request.sendBuffer = withUnsafePointer(to: &data[0]) { vm_address_t(bitPattern: $0) }
     request.sendBytes = UInt32(data.count)
 
     request.replyTransactionType = IOOptionBits(kIOI2CNoTransactionType)
@@ -230,8 +230,8 @@ public class DDC {
     request.replyBytes = UInt32(replyData.count)
 
     for i in 1...tries {
-      request.sendBuffer = withUnsafePointer(to: &data[0]) { UInt(bitPattern: $0) }
-      request.replyBuffer = withUnsafePointer(to: &replyData[0]) { UInt(bitPattern: $0) }
+      request.sendBuffer = withUnsafePointer(to: &data[0]) { vm_address_t(bitPattern: $0) }
+      request.replyBuffer = withUnsafePointer(to: &replyData[0]) { vm_address_t(bitPattern: $0) }
 
       guard DDC.send(request: &request, to: self.framebuffer) else {
         continue
@@ -242,6 +242,9 @@ public class DDC {
         replyData[ 2] == 0x02 &&
         replyData[ 4] == command &&
         replyData[10] == (UInt8(request.replyAddress) ^ UInt8(request.replySubAddress) ^ replyData[1] ^ replyData[2] ^ replyData[3] ^ replyData[4] ^ replyData[5] ^ replyData[6] ^ replyData[7] ^ replyData[8] ^ replyData[9])
+
+      let commandSupported = replyData[3] == 0x00
+      os_log("Reading %{public}@ supported: %{public}@", type: .debug, String(reflecting: command), String(commandSupported))
 
       if checksum {
         if i > 1 {
@@ -350,7 +353,12 @@ public class DDC {
         continue
       }
 
-      return request.result == KERN_SUCCESS
+      guard request.result == KERN_SUCCESS else {
+        os_log("Request to interface %d for framebuffer with ID %d failed.", type: .error, bus, framebuffer)
+        continue
+      }
+
+      return true
     }
 
     return false
