@@ -110,6 +110,8 @@ public class DDC {
     }
   }
 
+  static var dispatchGroups: [CGDirectDisplayID: (DispatchQueue, DispatchGroup)] = [:]
+
   let displayId: CGDirectDisplayID
   let framebuffer: io_service_t
   let replyTransactionType: IOOptionBits
@@ -182,6 +184,23 @@ public class DDC {
   }
 
   public func read(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
+    assert(tries > 0)
+
+    if DDC.dispatchGroups[self.displayId] == nil {
+      DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(displayId)"), DispatchGroup())
+    }
+
+    let (queue, group) = DDC.dispatchGroups[self.displayId]!
+
+    group.wait()
+
+    defer {
+      queue.async {
+        assert(usleep(errorRecoveryWaitTime) == 0)
+        group.leave()
+      }
+    }
+
     var data: [UInt8] = [
       0x51,
       0x82,
@@ -213,6 +232,9 @@ public class DDC {
       request.sendBuffer = withUnsafePointer(to: &data[0]) { UInt(bitPattern: $0) }
       request.replyBuffer = withUnsafePointer(to: &replyData[0]) { UInt(bitPattern: $0) }
 
+      group.wait()
+      group.enter()
+
       guard DDC.send(request: &request, to: self.framebuffer) else {
         continue
       }
@@ -238,11 +260,10 @@ public class DDC {
         return nil
       }
 
-      if errorRecoveryWaitTime > 0 {
-        DispatchQueue(label: "ddc-display-\(displayId)").sync {
-          guard usleep(errorRecoveryWaitTime) == 0 else {
-            return
-          }
+      if errorRecoveryWaitTime > 0 && i != tries {
+        queue.async {
+          assert(usleep(errorRecoveryWaitTime) == 0)
+          group.leave()
         }
       }
     }
