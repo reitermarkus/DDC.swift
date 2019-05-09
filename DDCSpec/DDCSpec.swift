@@ -1,7 +1,7 @@
 import XCTest
 
-import Quick
 import Nimble
+import Quick
 
 @testable import DDC
 
@@ -12,7 +12,7 @@ func ddcToEdid() {
 
   let edid = ddc.edid()!
 
-  let _ = edid
+  _ = edid
 }
 
 class DDCSpec: QuickSpec {

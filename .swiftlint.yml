@@ -1,0 +1,14 @@
+disabled_rules:
+  - line_length
+  - function_body_length
+  - identifier_name
+  - trailing_comma
+  - large_tuple
+  - nesting
+  - cyclomatic_complexity
+excluded:
+  - Carthage
+type_body_length: 500
+file_length: 600
+switch_case_alignment:
+  indented_cases: true

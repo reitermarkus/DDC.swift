@@ -25,14 +25,14 @@ internal extension Bool {
 }
 
 internal extension UInt8 {
-  var bit7: Bit { get { return Bit(self >> 7             ) } }
-  var bit6: Bit { get { return Bit(self >> 6 & 0b00000001) } }
-  var bit5: Bit { get { return Bit(self >> 5 & 0b00000001) } }
-  var bit4: Bit { get { return Bit(self >> 4 & 0b00000001) } }
-  var bit3: Bit { get { return Bit(self >> 3 & 0b00000001) } }
-  var bit2: Bit { get { return Bit(self >> 2 & 0b00000001) } }
-  var bit1: Bit { get { return Bit(self >> 1 & 0b00000001) } }
-  var bit0: Bit { get { return Bit(self      & 0b00000001) } }
+  var bit7: Bit { return Bit(self >> 7             ) }
+  var bit6: Bit { return Bit(self >> 6 & 0b00000001) }
+  var bit5: Bit { return Bit(self >> 5 & 0b00000001) }
+  var bit4: Bit { return Bit(self >> 4 & 0b00000001) }
+  var bit3: Bit { return Bit(self >> 3 & 0b00000001) }
+  var bit2: Bit { return Bit(self >> 2 & 0b00000001) }
+  var bit1: Bit { return Bit(self >> 1 & 0b00000001) }
+  var bit0: Bit { return Bit(self      & 0b00000001) }
 }
 
 internal extension UInt16 {
@@ -64,7 +64,7 @@ internal extension UInt64 {
 
 internal extension String {
   init<T: Sequence>(_ bytes: T) where T.Iterator.Element == UInt8 {
-    let characters = bytes.map() { Character(UnicodeScalar($0)) }
+    let characters = bytes.map { Character(UnicodeScalar($0)) }
     self.init(characters)
   }
 }
@@ -77,9 +77,7 @@ public class EDID {
       public struct SignalLevel {
         let video: Float
         let sync: Float
-        var total: Float {
-          get { return self.video + self.sync }
-        }
+        var total: Float { return self.video + self.sync }
       }
 
       public enum VideoSetup {
@@ -182,7 +180,7 @@ public class EDID {
     case analog(Analog)
     case digital(Digital)
 
-    init(_ byte: UInt8)  {
+    init(_ byte: UInt8) {
       switch byte.bit7 {
         case .zero:
           self = .analog(Analog(byte))
@@ -210,35 +208,35 @@ public class EDID {
       let type = data[3]
 
       switch type {
-      case 0xFF:
-        self = .serialNumber(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
-      case 0xFE:
-        self = .text(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
-      case 0xFD:
-        self = .rangeLimits(Array(data))
-      case 0xFC:
-        self = .displayName(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
-      case 0xFB:
-        self = .whitePoint(Array(data))
-      case 0xFA:
-        self = .additionalStandardTimingInformation(
-          StandardTimingInformation(with: data[5...6]),
-          StandardTimingInformation(with: data[7...8]),
-          StandardTimingInformation(with: data[9...10]),
-          StandardTimingInformation(with: data[11...12]),
-          StandardTimingInformation(with: data[13...14]),
-          StandardTimingInformation(with: data[15...16])
-        )
-      case 0xF9:
-        self = .displayColorManagement(Array(data))
-      case 0xF8:
-        self = .cvtTimingCodes(Array(data))
-      case 0xF7:
-        self = .additionalStandardTiming3(Array(data))
-      case 0x10:
-        self = .dummy
-      default:
-        self = .reserved
+        case 0xFF:
+          self = .serialNumber(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+        case 0xFE:
+          self = .text(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+        case 0xFD:
+          self = .rangeLimits(Array(data))
+        case 0xFC:
+          self = .displayName(String(data[5...17]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+        case 0xFB:
+          self = .whitePoint(Array(data))
+        case 0xFA:
+          self = .additionalStandardTimingInformation(
+            StandardTimingInformation(with: data[5...6]),
+            StandardTimingInformation(with: data[7...8]),
+            StandardTimingInformation(with: data[9...10]),
+            StandardTimingInformation(with: data[11...12]),
+            StandardTimingInformation(with: data[13...14]),
+            StandardTimingInformation(with: data[15...16])
+          )
+        case 0xF9:
+          self = .displayColorManagement(Array(data))
+        case 0xF8:
+          self = .cvtTimingCodes(Array(data))
+        case 0xF7:
+          self = .additionalStandardTiming3(Array(data))
+        case 0x10:
+          self = .dummy
+        default:
+          self = .reserved
       }
     }
   }
@@ -249,7 +247,7 @@ public class EDID {
     public let verticalFrequency: UInt8
 
     init?<T: Collection>(with data: T) where T.Index == Int, T.Element == UInt8 {
-      if data[0] == 1 && data[1] == 1 {
+      if data[0] == 1, data[1] == 1 {
         return nil
       }
 
@@ -320,7 +318,7 @@ public class EDID {
               self.supportedColorEncodingFormat = SupportedColorEncodingFormat.rgb444AndYCrCb444AndYCrCb422
           }
 
-          self.displayColorType = nil
+        self.displayColorType = nil
       }
 
       self.srgbStandardIsDefaultColorSpace = Bool(byte24.bit2)
@@ -354,6 +352,7 @@ public class EDID {
 
     return Measurement(value: Double(self.rawValue[21]), unit: UnitLength.centimeters)
   }()
+
   public lazy var screenHeight: Measurement? = { [unowned self] in
     if self.rawValue[22] == 0 {
       return nil
@@ -361,6 +360,7 @@ public class EDID {
 
     return Measurement(value: Double(self.rawValue[22]), unit: UnitLength.centimeters)
   }()
+
   public lazy var aspectRatio: Float? = { [unowned self] in
     if self.screenWidth != nil, self.screenHeight == nil {
       let landscapeAspectRatio = Float(self.rawValue[21]) * 2.54 + 1.0
@@ -431,7 +431,7 @@ public class EDID {
     )
   }()
 
-  public lazy var descriptors: (Descriptor, Descriptor, Descriptor, Descriptor) =  { [unowned self] in
+  public lazy var descriptors: (Descriptor, Descriptor, Descriptor, Descriptor) = { [unowned self] in
     (
       EDID.detailedTimingInformation(from: Array(self.rawValue[54...71])),
       EDID.detailedTimingInformation(from: Array(self.rawValue[72...89])),
@@ -488,8 +488,8 @@ public class EDID {
     timingInformation.horizontalActive = UInt32(UInt16(data[4] >> 4, data[2]))
     timingInformation.horizontalBlanking = UInt32(UInt16(data[4] & 0b1111, data[3]))
 
-    timingInformation.verticalActive =  UInt32(UInt16(data[7] >> 4, data[5]))
-    timingInformation.verticalBlanking =  UInt32(UInt16(data[7] & 0b1111, data[6]))
+    timingInformation.verticalActive = UInt32(UInt16(data[7] >> 4, data[5]))
+    timingInformation.verticalBlanking = UInt32(UInt16(data[7] & 0b1111, data[6]))
 
     timingInformation.horizontalSyncOffset = UInt32(UInt16(data[11] >> 6, data[8]))
     timingInformation.horizontalSyncPulseWidth = UInt32(UInt16(data[11] >> 4 & 0b11, data[9]))
@@ -497,7 +497,7 @@ public class EDID {
     timingInformation.verticalSyncOffset = UInt32((data[10] >> 4) & 0b1111) | (UInt32((data[11] >> 2) & 0b11) << 4)
     timingInformation.verticalSyncPulseWidth = UInt32(data[10] & 0b1111) | (UInt32(data[11] & 0b11) << 4)
 
-    timingInformation.horizontalScaled =   UInt32(UInt16(data[14] >> 4, data[12]))
+    timingInformation.horizontalScaled = UInt32(UInt16(data[14] >> 4, data[12]))
     timingInformation.verticalScaled = UInt32(UInt16(data[14] & 0b1111, data[13]))
 
     timingInformation.horizontalBorderLeft = UInt32(data[15])

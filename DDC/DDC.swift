@@ -149,7 +149,7 @@ public class DDC {
   }
 
   public func write(command: Command, value: UInt8) -> Bool {
-    return write(command: command.value, value: value)
+    return self.write(command: command.value, value: value)
   }
 
   public func write(command: UInt8, value: UInt8) -> Bool {
@@ -181,14 +181,14 @@ public class DDC {
   }
 
   public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
-    return read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime)
+    return self.read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime)
   }
 
-  public func read(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
+  public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64 = 10, errorRecoveryWaitTime: useconds_t = 40000) -> (UInt8, UInt8)? {
     assert(tries > 0)
 
     if DDC.dispatchGroups[self.displayId] == nil {
-      DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(displayId)"), DispatchGroup())
+      DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(self.displayId)"), DispatchGroup())
     }
 
     let (queue, group) = DDC.dispatchGroups[self.displayId]!
@@ -239,9 +239,9 @@ public class DDC {
 
       let checksum =
         replyData[ 0] == request.sendAddress &&
-          replyData[ 2] == 0x02 &&
-          replyData[ 4] == command &&
-          replyData[10] == (UInt8(request.replyAddress) ^ UInt8(request.replySubAddress) ^ replyData[1] ^ replyData[2] ^ replyData[3] ^ replyData[4] ^ replyData[5] ^ replyData[6] ^ replyData[7] ^ replyData[8] ^ replyData[9])
+        replyData[ 2] == 0x02 &&
+        replyData[ 4] == command &&
+        replyData[10] == (UInt8(request.replyAddress) ^ UInt8(request.replySubAddress) ^ replyData[1] ^ replyData[2] ^ replyData[3] ^ replyData[4] ^ replyData[5] ^ replyData[6] ^ replyData[7] ^ replyData[8] ^ replyData[9])
 
       if checksum {
         if i > 1 {
@@ -258,7 +258,7 @@ public class DDC {
         return nil
       }
 
-      if errorRecoveryWaitTime > 0 && i != tries {
+      if errorRecoveryWaitTime > 0, i != tries {
         assert(usleep(errorRecoveryWaitTime) == 0)
       }
     }
@@ -393,7 +393,7 @@ public class DDC {
             return nil
           }
 
-          return n.withMemoryRebound(to: CChar.self, capacity: size / MemoryLayout<CChar>.size) { String.init(cString: $0) }
+          return n.withMemoryRebound(to: CChar.self, capacity: size / MemoryLayout<CChar>.size) { String(cString: $0) }
         }
       }) {
         os_log("Framebuffer: %{public}@", type: .debug, framebufferName)
@@ -484,7 +484,7 @@ public class DDC {
     let extensions = Int(edidData[126])
 
     if extensions > 0 {
-      guard let extensionData = receiveBytes(128 * extensions)  else {
+      guard let extensionData = receiveBytes(128 * extensions) else {
         os_log("Failed receiving EDID extensions for display with ID %d.", type: .error, self.displayId)
         return nil
       }
