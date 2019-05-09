@@ -231,7 +231,7 @@ public class DDC {
 
     var data: [UInt8] = [UInt8(0x51), UInt8(0x80 + message.count)] + message + [UInt8(0x6E)]
 
-    for i in 0..<data.count {
+    for i in 0..<(data.count - 1) {
       data[data.count - 1] ^= data[i]
     }
 
