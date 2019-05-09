@@ -461,8 +461,8 @@ public class DDC {
   }
 
   public func edidOld() -> EDID? {
-    let receiveBytes = { (count: Int) -> [UInt8]? in
-      var data: [UInt8] = [0x00]
+    let receiveBytes = { (count: Int, offset: UInt8) -> [UInt8]? in
+      var data: [UInt8] = [offset]
       var replyData: [UInt8] = Array(repeating: 0, count: count)
 
       var request = IOI2CRequest()
@@ -484,7 +484,7 @@ public class DDC {
       return replyData
     }
 
-    guard let edidData = receiveBytes(128) else {
+    guard let edidData = receiveBytes(128, 0) else {
       os_log("Failed receiving EDID for display with ID %d.", type: .error, self.displayId)
       return nil
     }
@@ -492,7 +492,7 @@ public class DDC {
     let extensions = Int(edidData[126])
 
     if extensions > 0 {
-      guard let extensionData = receiveBytes(128 * extensions) else {
+      guard let extensionData = receiveBytes(128 * extensions, 128) else {
         os_log("Failed receiving EDID extensions for display with ID %d.", type: .error, self.displayId)
         return nil
       }
