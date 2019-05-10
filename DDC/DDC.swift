@@ -170,7 +170,7 @@ public class DDC {
     case bottomLeftScreenPurity = 0xEA
     case bottomRightScreenPurity = 0xEB
 
-    static let brightness = luminance
+    public static let brightness = luminance
   }
 
   static var dispatchGroups: [CGDirectDisplayID: (DispatchQueue, DispatchGroup)] = [:]
