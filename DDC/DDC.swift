@@ -173,6 +173,7 @@ public class DDC {
     public static let brightness = luminance
   }
 
+  static var sem = DispatchSemaphore(value: 1)
   static var dispatchGroups: [CGDirectDisplayID: (DispatchQueue, DispatchGroup)] = [:]
   static var framebufferDispatchGroups: [io_service_t: (DispatchQueue, DispatchGroup)] = [:]
 
@@ -273,9 +274,13 @@ public class DDC {
   }
 
   public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> IOI2CRequest? {
+    DDC.sem.wait()
+
     if DDC.dispatchGroups[self.displayId] == nil {
       DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(self.displayId)"), DispatchGroup())
     }
+
+    DDC.sem.signal()
 
     let (queue, group) = DDC.dispatchGroups[self.displayId]!
 
