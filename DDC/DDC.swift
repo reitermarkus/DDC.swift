@@ -4,110 +4,173 @@ import IOKit
 import os.log
 
 public class DDC {
-  public enum Command {
-    case reset
-    case resetBrighnessAndContrast
-    case resetGeometry
-    case resetColor
-    case brightness
-    case contrast
-    case colorPresetA
-    case redGain
-    case greenGain
-    case blueGain
-    case autoSizeCenter
-    case width
-    case height
-    case verticalPosition
-    case horizontalPosition
-    case pincushionAmp
-    case pincushionPhase
-    case keystoneBalance
-    case pincushionBalance
-    case topPincushionAmp
-    case topPincushionBalance
-    case bottomPincushionAmp
-    case bottomPincushionBalance
-    case verticalLinearity
-    case verticalLinearityBalance
-    case horizontalStaticConvergence
-    case verticalStaticConvergence
-    case moireCancel
-    case inputSource
-    case audioSpeakerVolume
-    case redBlackLevel
-    case greenBlackLevel
-    case blueBlackLevel
-    case orientation
-    case audioMute
-    case settings
-    case onScreenDisplay
-    case osdLanguage
-    case dpms
-    case colorPresetB
-    case vcpVersion
-    case colorPresetC
-    case powerControl
-    case topLeftScreenPurity
-    case topRightScreenPurity
-    case bottomLeftScreenPurity
-    case bottomRightScreenPurity
-    case sharpness
-    case blackStabilizer
+  public enum Command: UInt8 {
+    // Display Control
+    case horizontalFrequency = 0xAC
+    case verticalFrequency = 0xAE
+    case sourceColorCoding = 0xB5
+    case displayUsageTime = 0xC0
+    case displayControllerId = 0xC8
+    case displayFirmwareLevel = 0xC9
+    case osdLanguage = 0xCC
+    case powerMode = 0xD6
+    case imageMode = 0xDB
+    case vcpVersion = 0xDF
 
-    public var value: UInt8 {
-      switch self {
-        case .reset:                       return 0x04
-        case .resetBrighnessAndContrast:   return 0x05
-        case .resetGeometry:               return 0x06
-        case .resetColor:                  return 0x08
-        case .brightness:                  return 0x10 // OK: LG 38UC99-W
-        case .contrast:                    return 0x12 // OK: LG 38UC99-W
-        case .colorPresetA:                return 0x14 // OK: Dell U2515H -> Presets: 4 = 5000K, 5 = 6500K, 6 = 7500K, 8 = 9300K, 9 = 10000K, 11 = 5700K, 12 = Custom Color
-        case .redGain:                     return 0x16 // OK: LG 38UC99-W
-        case .greenGain:                   return 0x18 // OK: LG 38UC99-W
-        case .blueGain:                    return 0x1a // OK: LG 38UC99-W
-        case .autoSizeCenter:              return 0x1e
-        case .horizontalPosition:          return 0x20
-        case .width:                       return 0x22
-        case .pincushionAmp:               return 0x24
-        case .pincushionBalance:           return 0x26
-        case .horizontalStaticConvergence: return 0x28
-        case .verticalStaticConvergence:   return 0x28
-        case .verticalPosition:            return 0x30
-        case .height:                      return 0x32
-        case .pincushionPhase:             return 0x42
-        case .keystoneBalance:             return 0x40
-        case .topPincushionAmp:            return 0x46
-        case .topPincushionBalance:        return 0x48
-        case .bottomPincushionAmp:         return 0x4a
-        case .bottomPincushionBalance:     return 0x4c
-        case .verticalLinearity:           return 0x3a
-        case .verticalLinearityBalance:    return 0x3c
-        case .moireCancel:                 return 0x56
-        case .inputSource:                 return 0x60
-        case .audioSpeakerVolume:          return 0x62 // OK: LG 38UC99-W
-        case .redBlackLevel:               return 0x6c // OK: LG 38UC99-W (not available from OSD)
-        case .greenBlackLevel:             return 0x6e // OK: LG 38UC99-W (not available from OSD)
-        case .blueBlackLevel:              return 0x70 // OK: LG 38UC99-W (not available from OSD)
-        case .orientation:                 return 0xaa
-        case .audioMute:                   return 0x8d
-        case .settings:                    return 0xb0 // unsure on this one
-        case .onScreenDisplay:             return 0xca // read only   -> returns '1' (OSD closed) or '2' (OSD active)
-        case .osdLanguage:                 return 0xcc
-        case .dpms:                        return 0xd6
-        case .colorPresetB:                return 0xdC // Dell U2515H -> Presets: 0 = Standard, 2 = Multimedia, 3 = Movie, 5 = Game
-        case .vcpVersion:                  return 0xdf
-        case .colorPresetC:                return 0xe0 // Dell U2515H -> Brightness on/off (0 or 1)
-        case .powerControl:                return 0xe1
-        case .topLeftScreenPurity:         return 0xe8
-        case .topRightScreenPurity:        return 0xe9
-        case .bottomLeftScreenPurity:      return 0xea
-        case .bottomRightScreenPurity:     return 0xeb
-        case .sharpness:                   return 0x87 // OK: LG 38UC99-W
-        case .blackStabilizer:             return 0xf9 // OK: LG 38UC99-W -> can only be set to 0
-      }
-    }
+    // Geometry
+    case horizontalPosition = 0x20
+    case horizontalSize = 0x22
+    case horizontalPincushion = 0x24
+    case horizontalPincushionBalance = 0x26
+    case horizontalConvergenceRB = 0x28
+    case horizontalConvergenceMG = 0x29
+    case horizontalLinearity = 0x2A
+    case horizontalLinearityBalance = 0x2C
+    case verticalPosition = 0x30
+    case verticalSize = 0x32
+    case verticalPincushion = 0x34
+    case verticalPincushionBalance = 0x36
+    case verticalConvergenceRB = 0x38
+    case verticalConvergenceMG = 0x39
+    case verticalLinearity = 0x3A
+    case verticalLinearityBalance = 0x3C
+    case horizontalParallelogram = 0x40
+    case verticalParallelogram = 0x41
+    case horizontalKeystone = 0x42
+    case verticalKeystone = 0x43
+    case rotation = 0x44
+    case topCornerFlare = 0x46
+    case topCornerHook = 0x48
+    case bottomCornerFlare = 0x4A
+    case bottomCornerHook = 0x4C
+    case horizontalMirror = 0x82
+    case verticalMirror = 0x84
+    case displayScaling = 0x86
+    case windowPositionTopLeftX = 0x95
+    case windowPositionTopLeftY = 0x96
+    case windowPositionBottomRightX = 0x97
+    case windowPositionBottomRightY = 0x98
+    case scanMode = 0xDA
+
+    // Miscellaneous
+    case degauss = 0x01
+    case newControlValue = 0x02
+    case softControls = 0x03
+    case activeControl = 0x52
+    case performancePreservation = 0x54
+    case inputSelect = 0x60
+    case ambientLightSensor = 0x66
+    case remoteProcedureCall = 0x76
+    case displayIdentificationOnDataOperation = 0x78
+    case tvChannelUpDown = 0x8B
+    case flatPanelSubPixelLayout = 0xB2
+    case displayTechnologyType = 0xB6
+    case displayDescriptorLength = 0xC2
+    case transmitDisplayDescriptor = 0xC3
+    case enableDisplayOfDisplayDescriptor = 0xC4
+    case applicationEnableKey = 0xC6
+    case displayEnableKey = 0xC7
+    case statusIndicator = 0xCD
+    case auxiliaryDisplaySize = 0xCE
+    case auxiliaryDisplayData = 0xCF
+    case outputSelect = 0xD0
+    case assetTag = 0xD2
+    case auxiliaryPowerOutput = 0xD7
+    case scratchPad = 0xDE
+
+    // Audio
+    case audioSpeakerVolume = 0x62
+    case speakerSelect = 0x63
+    case audioMicrophoneVolume = 0x64
+    case audioJackConnectionStatus = 0x65
+    case audioMuteScreenBlank = 0x8D
+    case audioTreble = 0x8F
+    case audioBass = 0x91
+    case audioBalanceLR = 0x93
+    case audioProcessorMode = 0x94
+
+    // OSD/Button Event Control
+    case osd = 0xCA
+
+    // Image Adjustment
+    case sixAxisHueControlBlue = 0x9F
+    case sixAxisHueControlCyan = 0x9E
+    case sixAxisHueControlGreen = 0x9D
+    case sixAxisHueControlMagenta = 0xA0
+    case sixAxisHueControlRed = 0x9B
+    case sixAxisHueControlYellow = 0x9C
+    case sixAxisSaturationControlBlue = 0x5D
+    case sixAxisSaturationControlCyan = 0x5C
+    case sixAxisSaturationControlGreen = 0x5B
+    case sixAxisSaturationControlMagenta = 0x5E
+    case sixAxisSaturationControlRed = 0x59
+    case sixAxisSaturationControlYellow = 0x5A
+    case adjustZoom = 0x7C
+    case autoColorSetup = 0x1F
+    case autoSetup = 0x1E
+    case autoSetupOnOff = 0xA2
+    case backlightControlLegacy = 0x13
+    case backlightLevelWhite = 0x6B
+    case backlightLevelRed = 0x6D
+    case backlightLevelGreen = 0x6F
+    case backlightLevelBlue = 0x71
+    case blockLutOperation = 0x75
+    case clock = 0x0E
+    case clockPhase = 0x3E
+    case colorSaturation = 0x8A
+    case colorTemperatureIncrement = 0x0B
+    case colorTemperatureRequest = 0x0C
+    case contrast = 0x12
+    case displayApplication = 0xDC
+    case fleshToneEnhancement = 0x11
+    case focus = 0x1C
+    case gamma = 0x72
+    case grayScaleExpansion = 0x2E
+    case horizontalMoire = 0x56
+    case hue = 0x90
+    case luminance = 0x10
+    case lutSize = 0x73
+    case screenOrientation = 0xAA
+    case selectColorPreset = 0x14
+    case sharpness = 0x87
+    case singlePointLutOperation = 0x74
+    case stereoVideoMode = 0xD4
+    case tvBlackLevel = 0x92
+    case tvContrast = 0x8E
+    case tvSharpness = 0x8C
+    case userColorVisionCompensation = 0x17
+    case velocityScanModulation = 0x88
+    case verticalMoire = 0x58
+    case videoBlackLevelBlue = 0x70
+    case videoBlackLevelGreen = 0x6E
+    case videoBlackLevelRed = 0x6C
+    case videoGainBlue = 0x1A
+    case videoGainGreen = 0x18
+    case videoGainRed = 0x16
+    case windowBackground = 0x9A
+    case windowControlOnOff = 0xA4
+    case windowSelect = 0xA5
+    case windowSize = 0xA6
+    case windowTransparency = 0xA7
+
+    // Preset Operations
+    case restoreFactoryDefaults = 0x04
+    case restoreFactoryLuminanceContrastDefaults = 0x05
+    case restoreFactoryGeometryDefaults = 0x06
+    case restoreFactoryColorDefaults = 0x08
+    case restoreFactoryTvDefaults = 0x0A
+    case settings = 0xB0
+
+    // Manufacturer Specific
+    case blackStabilizer = 0xF9 // LG 38UC99-W
+    case colorPresetC = 0xE0
+    case powerControl = 0xE1
+    case topLeftScreenPurity = 0xE8
+    case topRightScreenPurity = 0xE9
+    case bottomLeftScreenPurity = 0xEA
+    case bottomRightScreenPurity = 0xEB
+
+    static let brightness = luminance
   }
 
   static var dispatchGroups: [CGDirectDisplayID: (DispatchQueue, DispatchGroup)] = [:]
@@ -150,7 +213,7 @@ public class DDC {
   }
 
   public func write(command: Command, value: UInt16) -> Bool {
-    return self.write(command: command.value, value: value)
+    return self.write(command: command.rawValue, value: value)
   }
 
   public func write(command: UInt8, value: UInt16) -> Bool {
@@ -292,7 +355,7 @@ public class DDC {
     return replyData == [UInt8(request.sendAddress), 0x80, 0xBE]
   }
 
-  public func readVcp(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt8, UInt8, UInt8, UInt8)? {
+  public func readVcp(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt8, UInt8, UInt8, UInt8)? {
     assert(tries > 0)
 
     let message: [UInt8] = [0x01, command]
@@ -306,7 +369,7 @@ public class DDC {
 
       guard replyData[2] == 0x02 else {
         os_log("Got wrong response type for %{public}@. Expected %d, got %d.", type: .debug, String(reflecting: command), 0x02, replyData[2])
-        os_log("Response was: %{public}@", type: .debug, replyData.map { String(format: "%02X", $0)}.joined(separator: " "))
+        os_log("Response was: %{public}@", type: .debug, replyData.map { String(format: "%02X", $0) }.joined(separator: " "))
         continue
       }
 
@@ -327,7 +390,7 @@ public class DDC {
   }
 
   public func vcpVersion(replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> String? {
-    guard let (_, _, sh, sl) = self.readVcp(command: DDC.Command.vcpVersion.value, tries: 3, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay) else {
+    guard let (_, _, sh, sl) = self.readVcp(command: DDC.Command.vcpVersion.rawValue, tries: 3, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay) else {
       return nil
     }
 
@@ -343,7 +406,7 @@ public class DDC {
   }
 
   public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
-    return self.read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay)
+    return self.read(command: command.rawValue, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay)
   }
 
   public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
