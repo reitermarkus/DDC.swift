@@ -212,21 +212,21 @@ public class DDC {
     self.init(for: displayId, withReplyTransactionType: replyTransactionType)
   }
 
-  public func write(command: Command, value: UInt16) -> Bool {
-    return self.write(command: command.rawValue, value: value)
+  public func write(command: Command, value: UInt16, errorRecoveryWaitTime: UInt32? = nil) -> Bool {
+    return self.write(command: command.rawValue, value: value, errorRecoveryWaitTime: errorRecoveryWaitTime)
   }
 
-  public func write(command: UInt8, value: UInt16) -> Bool {
+  public func write(command: UInt8, value: UInt16, errorRecoveryWaitTime: UInt32? = nil) -> Bool {
     let message: [UInt8] = [0x03, command, UInt8(value >> 8), UInt8(value & 0xFF)]
     var replyData: [UInt8] = []
-    return self.sendMessage(message, replyData: &replyData, errorRecoveryWaitTime: 40000) != nil
+    return self.sendMessage(message, replyData: &replyData, errorRecoveryWaitTime: errorRecoveryWaitTime ?? 50000) != nil
   }
 
-  public func enableAppReport(_ enable: Bool = true) -> Bool {
+  public func enableAppReport(_ enable: Bool = true, errorRecoveryWaitTime: UInt32? = nil) -> Bool {
     let message: [UInt8] = [0xF5, enable ? 0x01 : 0x00]
     var replyData: [UInt8] = []
 
-    guard self.sendMessage(message, replyData: &replyData) != nil else {
+    guard self.sendMessage(message, replyData: &replyData, errorRecoveryWaitTime: errorRecoveryWaitTime ?? 40000) != nil else {
       return false
     }
 
@@ -234,7 +234,7 @@ public class DDC {
     return true
   }
 
-  public func capability(minReplyDelay: UInt64? = nil) -> String? {
+  public func capability(minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> String? {
     var block_length = 0
 
     var cString: [UInt8] = []
@@ -246,7 +246,7 @@ public class DDC {
       let message: [UInt8] = [0xF3, UInt8(offset >> 8), UInt8(offset & 0xFF)]
       var replyData: [UInt8] = Array(repeating: 0, count: 38)
 
-      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: 50000) != nil else {
+      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime ?? 50000) != nil else {
         return nil
       }
 
@@ -272,9 +272,7 @@ public class DDC {
     }
   }
 
-  public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32 = 0) -> IOI2CRequest? {
-    var errorRecoveryWaitTime = errorRecoveryWaitTime
-
+  public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> IOI2CRequest? {
     if DDC.dispatchGroups[self.displayId] == nil {
       DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(self.displayId)"), DispatchGroup())
     }
@@ -286,7 +284,7 @@ public class DDC {
 
     defer {
       queue.async {
-        if errorRecoveryWaitTime > 0 {
+        if let errorRecoveryWaitTime = errorRecoveryWaitTime {
           usleep(errorRecoveryWaitTime)
         }
 
@@ -339,15 +337,14 @@ public class DDC {
       }
     }
 
-    // errorRecoveryWaitTime /= 2
     return request
   }
 
   // Send an “Identification Request” to check if DDC/CI is supported.
-  public func supported() -> Bool {
+  public func supported(minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> Bool {
     var replyData: [UInt8] = Array(repeating: 0, count: 3)
 
-    guard let request = self.sendMessage([0xF1], replyData: &replyData) else {
+    guard let request = self.sendMessage([0xF1], replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime) else {
       return false
     }
 
@@ -355,7 +352,7 @@ public class DDC {
     return replyData == [UInt8(request.sendAddress), 0x80, 0xBE]
   }
 
-  public func readVcp(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt8, UInt8, UInt8, UInt8)? {
+  public func readVcp(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> (UInt8, UInt8, UInt8, UInt8)? {
     assert(tries > 0)
 
     let message: [UInt8] = [0x01, command]
@@ -363,7 +360,7 @@ public class DDC {
     var replyData: [UInt8] = Array(repeating: 0, count: 11)
 
     for i in 1...tries {
-      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: 40000) != nil else {
+      guard self.sendMessage(message, replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime ?? 40000) != nil else {
         continue
       }
 
