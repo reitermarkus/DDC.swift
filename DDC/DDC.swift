@@ -516,9 +516,9 @@ public class DDC {
   }
 
   static func servicePort(from displayId: CGDirectDisplayID) -> io_object_t? {
-    var servicePortIterator = io_iterator_t()
+    var portIterator = io_iterator_t()
 
-    let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &servicePortIterator)
+    let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &portIterator)
 
     guard status == KERN_SUCCESS else {
       os_log("No matching services found for display with ID %d.", type: .error, displayId)
@@ -526,21 +526,28 @@ public class DDC {
     }
 
     defer {
-      assert(IOObjectRelease(servicePortIterator) == KERN_SUCCESS)
+      assert(IOObjectRelease(portIterator) == KERN_SUCCESS)
     }
 
-    while case let servicePort = IOIteratorNext(servicePortIterator), servicePort != 0 {
-      let dict = IODisplayCreateInfoDictionary(servicePort, IOOptionBits(kIODisplayOnlyPreferredName)).takeRetainedValue() as NSDictionary
+    while case let port = IOIteratorNext(portIterator), port != 0 {
+      let dict = IODisplayCreateInfoDictionary(port, IOOptionBits(kIODisplayOnlyPreferredName)).takeRetainedValue() as NSDictionary
 
-      guard let vendorId = dict[kDisplayVendorID] as? CFIndex, CGDisplayVendorNumber(displayId) == vendorId else {
+      let vendorId = dict[kDisplayVendorID] as? CFIndex ?? 0
+      let productId = dict[kDisplayProductID] as? CFIndex ?? 0
+      let serialNumber = dict[kDisplaySerialNumber] as? CFIndex ?? 0
+
+      guard vendorId == CGDisplayVendorNumber(displayId) else {
+        os_log("Service port vendor ID %ld differs from display product ID %ld.", type: .debug, vendorId, CGDisplayVendorNumber(displayId))
         continue
       }
 
-      guard let productId = dict[kDisplayProductID] as? CFIndex, CGDisplayModelNumber(displayId) == productId else {
+      guard productId == CGDisplayModelNumber(displayId) else {
+        os_log("Service port product ID %ld differs from display product ID %ld.", type: .debug, productId, CGDisplayModelNumber(displayId))
         continue
       }
 
-      guard let serialNumber = dict[kDisplaySerialNumber] as? CFIndex, CGDisplaySerialNumber(displayId) == serialNumber else {
+      guard serialNumber == CGDisplaySerialNumber(displayId) else {
+        os_log("Service port serial number %ld differs from display serial number %ld.", type: .debug, serialNumber, CGDisplaySerialNumber(displayId))
         continue
       }
 
@@ -548,7 +555,7 @@ public class DDC {
       let size = MemoryLayout.size(ofValue: name)
       if let framebufferName = (withUnsafeMutablePointer(to: &name) {
         $0.withMemoryRebound(to: Int8.self, capacity: size / MemoryLayout<Int8>.size) { (n) -> String? in
-          guard IORegistryEntryGetName(servicePort, n) == kIOReturnSuccess else {
+          guard IORegistryEntryGetName(port, n) == kIOReturnSuccess else {
             return nil
           }
 
@@ -564,9 +571,9 @@ public class DDC {
 
       os_log("Vendor ID: %d, Product ID: %d, Serial Number: %d", type: .debug, vendorId, productId, serialNumber)
       os_log("Unit Number: %d", type: .debug, CGDisplayUnitNumber(displayId))
-      os_log("Service Port: %d", type: .debug, servicePort)
+      os_log("Service Port: %d", type: .debug, port)
 
-      return servicePort
+      return port
     }
 
     os_log("No service port found for display with ID %d.", type: .error, displayId)
