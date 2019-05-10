@@ -149,11 +149,11 @@ public class DDC {
     self.init(for: displayId, withReplyTransactionType: replyTransactionType)
   }
 
-  public func write(command: Command, value: UInt8) -> Bool {
+  public func write(command: Command, value: UInt16) -> Bool {
     return self.write(command: command.value, value: value)
   }
 
-  public func write(command: UInt8, value: UInt8) -> Bool {
+  public func write(command: UInt8, value: UInt16) -> Bool {
     let message: [UInt8] = [0x03, command, UInt8(value >> 8), UInt8(value & 0xFF)]
     var replyData: [UInt8] = []
     return self.sendMessage(message, replyData: &replyData, errorRecoveryWaitTime: 40000) != nil
@@ -292,11 +292,7 @@ public class DDC {
     return replyData == [UInt8(request.sendAddress), 0x80, 0xBE]
   }
 
-  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
-    return self.read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay)
-  }
-
-  public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
+  public func readVcp(command: UInt8, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt8, UInt8, UInt8, UInt8)? {
     assert(tries > 0)
 
     let message: [UInt8] = [0x01, command]
@@ -308,12 +304,13 @@ public class DDC {
         continue
       }
 
-      if replyData[2] != 0x02 {
+      guard replyData[2] == 0x02 else {
         os_log("Got wrong response type for %{public}@. Expected %d, got %d.", type: .debug, String(reflecting: command), 0x02, replyData[2])
+        os_log("Response was: %{public}@", type: .debug, replyData.map { String(format: "%02X", $0)}.joined(separator: " "))
         continue
       }
 
-      if replyData[3] != 0x00 {
+      guard replyData[3] == 0x00 else {
         os_log("Reading %{public}@ is not supported.", type: .debug, String(reflecting: command))
         return nil
       }
@@ -322,13 +319,41 @@ public class DDC {
         os_log("Reading %{public}@ took %d tries.", type: .debug, String(reflecting: command), i)
       }
 
-      let maxValue = UInt16(replyData[6] << 8) + UInt16(replyData[7])
-      let currentValue = UInt16(replyData[8] << 8) + UInt16(replyData[9])
-      return (currentValue, maxValue)
+      return (replyData[6], replyData[7], replyData[8], replyData[9])
     }
 
     os_log("Reading %{public}@ failed.", type: .error, String(reflecting: command))
     return nil
+  }
+
+  public func vcpVersion(replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> String? {
+    guard let (_, _, sh, sl) = self.readVcp(command: DDC.Command.vcpVersion.value, tries: 3, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay) else {
+      return nil
+    }
+
+    return "\(sh).\(sl)"
+  }
+
+  public func firmwareLevel(replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> String? {
+    guard let (_, _, sh, sl) = self.readVcp(command: 0xC9, tries: 3, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay) else {
+      return nil
+    }
+
+    return "\(sh).\(sl)"
+  }
+
+  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
+    return self.read(command: command.value, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay)
+  }
+
+  public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
+    guard let (mh, ml, sh, sl) = readVcp(command: command, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay) else {
+      return nil
+    }
+
+    let maxValue = UInt16(mh << 8) + UInt16(ml)
+    let currentValue = UInt16(sh << 8) + UInt16(sl)
+    return (currentValue, maxValue)
   }
 
   private static func supportedTransactionType() -> IOOptionBits? {
