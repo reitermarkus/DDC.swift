@@ -339,7 +339,7 @@ public class DDC {
       }
     }
 
-    errorRecoveryWaitTime = 0
+    // errorRecoveryWaitTime /= 2
     return request
   }
 
