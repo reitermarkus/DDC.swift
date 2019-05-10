@@ -1,0 +1,6 @@
+--indent 2
+--ranges no-space
+--self insert
+--indentcase true
+--exponentcase lowercase
+--exclude Carthage

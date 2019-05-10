@@ -25,21 +25,21 @@ internal extension Bool {
 }
 
 internal extension UInt8 {
-  var bit7: Bit { return Bit(self >> 7             ) }
-  var bit6: Bit { return Bit(self >> 6 & 0b00000001) }
-  var bit5: Bit { return Bit(self >> 5 & 0b00000001) }
-  var bit4: Bit { return Bit(self >> 4 & 0b00000001) }
-  var bit3: Bit { return Bit(self >> 3 & 0b00000001) }
-  var bit2: Bit { return Bit(self >> 2 & 0b00000001) }
-  var bit1: Bit { return Bit(self >> 1 & 0b00000001) }
-  var bit0: Bit { return Bit(self      & 0b00000001) }
+  var bit7: Bit { return Bit(self >> 7) }
+  var bit6: Bit { return Bit(self >> 6 & 0b0000_0001) }
+  var bit5: Bit { return Bit(self >> 5 & 0b0000_0001) }
+  var bit4: Bit { return Bit(self >> 4 & 0b0000_0001) }
+  var bit3: Bit { return Bit(self >> 3 & 0b0000_0001) }
+  var bit2: Bit { return Bit(self >> 2 & 0b0000_0001) }
+  var bit1: Bit { return Bit(self >> 1 & 0b0000_0001) }
+  var bit0: Bit { return Bit(self & 0b0000_0001) }
 }
 
 internal extension UInt16 {
   init(_ byte1: UInt8, _ byte2: UInt8) {
     self.init(
       UInt16(byte1) << 8 |
-      UInt16(byte2)
+        UInt16(byte2)
     )
   }
 }
@@ -48,7 +48,7 @@ internal extension UInt32 {
   init(_ byte1: UInt8, _ byte2: UInt8, _ byte3: UInt8, _ byte4: UInt8) {
     self.init(
       UInt32(UInt16(byte1, byte2)) << 16 |
-      UInt32(UInt16(byte3, byte4))
+        UInt32(UInt16(byte3, byte4))
     )
   }
 }
@@ -57,7 +57,7 @@ internal extension UInt64 {
   init(_ byte1: UInt8, _ byte2: UInt8, _ byte3: UInt8, _ byte4: UInt8, _ byte5: UInt8, _ byte6: UInt8, _ byte7: UInt8, _ byte8: UInt8) {
     self.init(
       UInt64(UInt32(byte1, byte2, byte3, byte4)) << 32 |
-      UInt64(UInt32(byte5, byte6, byte7, byte8))
+        UInt64(UInt32(byte5, byte6, byte7, byte8))
     )
   }
 }
@@ -70,7 +70,7 @@ internal extension String {
 }
 
 public class EDID {
-  private static let HEADER = 0x00ffffffffffff00
+  private static let HEADER = 0x00FF_FFFF_FFFF_FF00
 
   public enum VideoInputDefinition {
     public struct Analog {
@@ -318,7 +318,7 @@ public class EDID {
               self.supportedColorEncodingFormat = SupportedColorEncodingFormat.rgb444AndYCrCb444AndYCrCb422
           }
 
-        self.displayColorType = nil
+          self.displayColorType = nil
       }
 
       self.srgbStandardIsDefaultColorSpace = Bool(byte24.bit2)
@@ -391,32 +391,32 @@ public class EDID {
   public lazy var whitePointXValueMostSignificantBits: UInt8 = { [unowned self] in self.rawValue[33] }()
   public lazy var whitePointYValueMostSignificantBits: UInt8 = { [unowned self] in self.rawValue[34] }()
 
-  public lazy var timing720x400At70Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b10000000 == 1 }()
-  public lazy var timing720x400At88Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b01000000 == 1 }()
-  public lazy var timing640x480At60Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b00100000 == 1 }()
-  public lazy var timing640x480At67Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b00010000 == 1 }()
-  public lazy var timing640x480At72Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b00001000 == 1 }()
-  public lazy var timing640x480At75Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b00000100 == 1 }()
-  public lazy var timing800x600At56Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b00000010 == 1 }()
-  public lazy var timing800x600At60Hz: Bool   = { [unowned self] in self.rawValue[35] & 0b00000001 == 1 }()
+  public lazy var timing720x400At70Hz: Bool = { [unowned self] in self.rawValue[35] & 0b1000_0000 == 1 }()
+  public lazy var timing720x400At88Hz: Bool = { [unowned self] in self.rawValue[35] & 0b0100_0000 == 1 }()
+  public lazy var timing640x480At60Hz: Bool = { [unowned self] in self.rawValue[35] & 0b0010_0000 == 1 }()
+  public lazy var timing640x480At67Hz: Bool = { [unowned self] in self.rawValue[35] & 0b0001_0000 == 1 }()
+  public lazy var timing640x480At72Hz: Bool = { [unowned self] in self.rawValue[35] & 0b0000_1000 == 1 }()
+  public lazy var timing640x480At75Hz: Bool = { [unowned self] in self.rawValue[35] & 0b0000_0100 == 1 }()
+  public lazy var timing800x600At56Hz: Bool = { [unowned self] in self.rawValue[35] & 0b0000_0010 == 1 }()
+  public lazy var timing800x600At60Hz: Bool = { [unowned self] in self.rawValue[35] & 0b0000_0001 == 1 }()
 
-  public lazy var timing800x600At72Hz: Bool   = { [unowned self] in self.rawValue[36] & 0b10000000 == 1 }()
-  public lazy var timing800x600At75Hz: Bool   = { [unowned self] in self.rawValue[36] & 0b01000000 == 1 }()
-  public lazy var timing832x624At75Hz: Bool   = { [unowned self] in self.rawValue[36] & 0b00100000 == 1 }()
-  public lazy var timing1024x768At87Hz: Bool  = { [unowned self] in self.rawValue[36] & 0b00010000 == 1 }()
-  public lazy var timing1024x768At60Hz: Bool  = { [unowned self] in self.rawValue[36] & 0b00001000 == 1 }()
-  public lazy var timing1024x768At72Hz: Bool  = { [unowned self] in self.rawValue[36] & 0b00000100 == 1 }()
-  public lazy var timing1024x768At75Hz: Bool  = { [unowned self] in self.rawValue[36] & 0b00000010 == 1 }()
-  public lazy var timing1280x1024At75Hz: Bool = { [unowned self] in self.rawValue[36] & 0b00000001 == 1 }()
+  public lazy var timing800x600At72Hz: Bool = { [unowned self] in self.rawValue[36] & 0b1000_0000 == 1 }()
+  public lazy var timing800x600At75Hz: Bool = { [unowned self] in self.rawValue[36] & 0b0100_0000 == 1 }()
+  public lazy var timing832x624At75Hz: Bool = { [unowned self] in self.rawValue[36] & 0b0010_0000 == 1 }()
+  public lazy var timing1024x768At87Hz: Bool = { [unowned self] in self.rawValue[36] & 0b0001_0000 == 1 }()
+  public lazy var timing1024x768At60Hz: Bool = { [unowned self] in self.rawValue[36] & 0b0000_1000 == 1 }()
+  public lazy var timing1024x768At72Hz: Bool = { [unowned self] in self.rawValue[36] & 0b0000_0100 == 1 }()
+  public lazy var timing1024x768At75Hz: Bool = { [unowned self] in self.rawValue[36] & 0b0000_0010 == 1 }()
+  public lazy var timing1280x1024At75Hz: Bool = { [unowned self] in self.rawValue[36] & 0b0000_0001 == 1 }()
 
-  public lazy var timing1152x870At75Hz: Bool  = { [unowned self] in self.rawValue[37] & 0b10000000 == 1 }()
-  public lazy var timingModeA: Bool           = { [unowned self] in self.rawValue[37] & 0b01000000 == 1 }()
-  public lazy var timingModeB: Bool           = { [unowned self] in self.rawValue[37] & 0b00100000 == 1 }()
-  public lazy var timingModeC: Bool           = { [unowned self] in self.rawValue[37] & 0b00010000 == 1 }()
-  public lazy var timingModeD: Bool           = { [unowned self] in self.rawValue[37] & 0b00001000 == 1 }()
-  public lazy var timingModeE: Bool           = { [unowned self] in self.rawValue[37] & 0b00000100 == 1 }()
-  public lazy var timingModeF: Bool           = { [unowned self] in self.rawValue[37] & 0b00000010 == 1 }()
-  public lazy var timingModeG: Bool           = { [unowned self] in self.rawValue[37] & 0b00000001 == 1 }()
+  public lazy var timing1152x870At75Hz: Bool = { [unowned self] in self.rawValue[37] & 0b1000_0000 == 1 }()
+  public lazy var timingModeA: Bool = { [unowned self] in self.rawValue[37] & 0b0100_0000 == 1 }()
+  public lazy var timingModeB: Bool = { [unowned self] in self.rawValue[37] & 0b0010_0000 == 1 }()
+  public lazy var timingModeC: Bool = { [unowned self] in self.rawValue[37] & 0b0001_0000 == 1 }()
+  public lazy var timingModeD: Bool = { [unowned self] in self.rawValue[37] & 0b0000_1000 == 1 }()
+  public lazy var timingModeE: Bool = { [unowned self] in self.rawValue[37] & 0b0000_0100 == 1 }()
+  public lazy var timingModeF: Bool = { [unowned self] in self.rawValue[37] & 0b0000_0010 == 1 }()
+  public lazy var timingModeG: Bool = { [unowned self] in self.rawValue[37] & 0b0000_0001 == 1 }()
 
   public lazy var standardDisplayModes: (StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?, StandardTimingInformation?) = { [unowned self] in
     (
@@ -464,8 +464,8 @@ public class EDID {
     let offset = UInt16("A".unicodeScalars.first!.value - 1)
 
     let letter1 = self.manufacturerId >> 10 & 0b11111 + offset
-    let letter2 = self.manufacturerId >>  5 & 0b11111 + offset
-    let letter3 = self.manufacturerId >>  0 & 0b11111 + offset
+    let letter2 = self.manufacturerId >> 5 & 0b11111 + offset
+    let letter3 = self.manufacturerId >> 0 & 0b11111 + offset
 
     return String(format: "%c%c%c", letter1, letter2, letter3)
   }
