@@ -274,29 +274,6 @@ public class DDC {
   }
 
   public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> IOI2CRequest? {
-    DDC.sem.wait()
-
-    if DDC.dispatchGroups[self.displayId] == nil {
-      DDC.dispatchGroups[self.displayId] = (DispatchQueue(label: "ddc-display-\(self.displayId)"), DispatchGroup())
-    }
-
-    DDC.sem.signal()
-
-    let (queue, group) = DDC.dispatchGroups[self.displayId]!
-
-    group.wait()
-    group.enter()
-
-    defer {
-      queue.async {
-        if let errorRecoveryWaitTime = errorRecoveryWaitTime {
-          usleep(errorRecoveryWaitTime)
-        }
-
-        group.leave()
-      }
-    }
-
     var data: [UInt8] = [UInt8(0x51), UInt8(0x80 + message.count)] + message + [UInt8(0x6E)]
 
     for i in 0..<(data.count - 1) {
@@ -324,7 +301,7 @@ public class DDC {
       request.replyBuffer = withUnsafePointer(to: &replyData[0]) { vm_address_t(bitPattern: $0) }
     }
 
-    guard DDC.send(request: &request, to: self.framebuffer) else {
+    guard DDC.send(request: &request, to: self.framebuffer, errorRecoveryWaitTime: errorRecoveryWaitTime) else {
       return nil
     }
 
@@ -457,10 +434,14 @@ public class DDC {
     return nil
   }
 
-  static func send(request: inout IOI2CRequest, to framebuffer: io_service_t) -> Bool {
+  static func send(request: inout IOI2CRequest, to framebuffer: io_service_t, errorRecoveryWaitTime: UInt32? = nil) -> Bool {
+    DDC.sem.wait()
+
     if DDC.framebufferDispatchGroups[framebuffer] == nil {
       DDC.framebufferDispatchGroups[framebuffer] = (DispatchQueue(label: "ddc-framebuffer-\(framebuffer)"), DispatchGroup())
     }
+
+    DDC.sem.signal()
 
     let (queue, group) = DDC.framebufferDispatchGroups[framebuffer]!
 
@@ -468,12 +449,11 @@ public class DDC {
     group.enter()
 
     defer {
-      if request.replyTransactionType == kIOI2CNoTransactionType {
-        queue.async {
-          usleep(20000)
-          group.leave()
+      queue.async {
+        if let errorRecoveryWaitTime = errorRecoveryWaitTime {
+          usleep(errorRecoveryWaitTime)
         }
-      } else {
+
         group.leave()
       }
     }
