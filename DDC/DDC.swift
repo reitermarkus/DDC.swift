@@ -384,12 +384,12 @@ public class DDC {
     return "\(sh).\(sl)"
   }
 
-  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
-    return self.read(command: command.rawValue, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay)
+  public func read(command: Command, tries: UInt = 1, replyTransactionType: IOOptionBits? = nil, minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> (UInt16, UInt16)? {
+    return self.read(command: command.rawValue, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime)
   }
 
-  public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil) -> (UInt16, UInt16)? {
-    guard let (mh, ml, sh, sl) = readVcp(command: command, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay) else {
+  public func read(command: UInt8, tries: UInt = 1, replyTransactionType _: IOOptionBits? = nil, minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> (UInt16, UInt16)? {
+    guard let (mh, ml, sh, sl) = readVcp(command: command, tries: tries, replyTransactionType: replyTransactionType, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime) else {
       return nil
     }
 
