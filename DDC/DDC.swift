@@ -227,7 +227,7 @@ public class DDC {
     let message: [UInt8] = [0xF5, enable ? 0x01 : 0x00]
     var replyData: [UInt8] = []
 
-    guard self.sendMessage(message, replyData: &replyData, errorRecoveryWaitTime: errorRecoveryWaitTime ?? 40000) != nil else {
+    guard self.sendMessage(message, replyData: &replyData, errorRecoveryWaitTime: errorRecoveryWaitTime ?? 50000) != nil else {
       return false
     }
 
@@ -326,7 +326,7 @@ public class DDC {
   public func supported(minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> Bool {
     var replyData: [UInt8] = Array(repeating: 0, count: 3)
 
-    guard let request = self.sendMessage([0xF1], replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime) else {
+    guard let request = self.sendMessage([0xF1], replyData: &replyData, minReplyDelay: minReplyDelay, errorRecoveryWaitTime: errorRecoveryWaitTime ?? 50000) else {
       return false
     }
 
