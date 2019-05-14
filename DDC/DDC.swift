@@ -315,6 +315,7 @@ public class DDC {
 
       guard checksum == calculated else {
         os_log("Checksum of reply does not match. Expected %d, got %d.", type: .error, checksum, calculated)
+        os_log("Response was: %{public}@", type: .debug, replyData.map { String(format: "%02X", $0) }.joined(separator: " "))
         return nil
       }
     }
