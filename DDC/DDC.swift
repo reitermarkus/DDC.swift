@@ -273,7 +273,7 @@ public class DDC {
     }
   }
 
-  public func sendMessage(_ message: [UInt8], replyData: inout [UInt8] = [], minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> IOI2CRequest? {
+  public func sendMessage(_ message: [UInt8], replyData: inout [UInt8], minReplyDelay: UInt64? = nil, errorRecoveryWaitTime: UInt32? = nil) -> IOI2CRequest? {
     var data: [UInt8] = [UInt8(0x51), UInt8(0x80 + message.count)] + message + [UInt8(0x6E)]
 
     for i in 0..<(data.count - 1) {
