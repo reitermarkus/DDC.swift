@@ -200,7 +200,7 @@ public class DDC {
     } else if let replyTransactionType = DDC.supportedTransactionType() {
       self.replyTransactionType = replyTransactionType
     } else {
-      os_log("No supported reply transaction type found for display with ID %d.", type: .error, displayId)
+      os_log("No supported reply transaction type found for display with ID %u.", type: .error, displayId)
       return nil
     }
   }
@@ -314,7 +314,7 @@ public class DDC {
       }
 
       guard checksum == calculated else {
-        os_log("Checksum of reply does not match. Expected %d, got %d.", type: .error, checksum, calculated)
+        os_log("Checksum of reply does not match. Expected %u, got %u.", type: .error, checksum, calculated)
         os_log("Response was: %{public}@", type: .debug, replyData.map { String(format: "%02X", $0) }.joined(separator: " "))
         return nil
       }
@@ -348,7 +348,7 @@ public class DDC {
       }
 
       guard replyData[2] == 0x02 else {
-        os_log("Got wrong response type for %{public}@. Expected %d, got %d.", type: .debug, String(reflecting: command), 0x02, replyData[2])
+        os_log("Got wrong response type for %{public}@. Expected %u, got %u.", type: .debug, String(reflecting: command), 0x02, replyData[2])
         os_log("Response was: %{public}@", type: .debug, replyData.map { String(format: "%02X", $0) }.joined(separator: " "))
         continue
       }
@@ -359,7 +359,7 @@ public class DDC {
       }
 
       if i > 1 {
-        os_log("Reading %{public}@ took %d tries.", type: .debug, String(reflecting: command), i)
+        os_log("Reading %{public}@ took %u tries.", type: .debug, String(reflecting: command), i)
       }
 
       return (replyData[6], replyData[7], replyData[8], replyData[9])
@@ -462,7 +462,7 @@ public class DDC {
     var busCount: IOItemCount = 0
 
     guard IOFBGetI2CInterfaceCount(framebuffer, &busCount) == KERN_SUCCESS else {
-      os_log("Failed to get interface count for framebuffer with ID %d.", type: .error, framebuffer)
+      os_log("Failed to get interface count for framebuffer with ID %u.", type: .error, framebuffer)
       return false
     }
 
@@ -470,25 +470,25 @@ public class DDC {
       var interface = io_service_t()
 
       guard IOFBCopyI2CInterfaceForBus(framebuffer, bus, &interface) == KERN_SUCCESS else {
-        os_log("Failed to get interface %d for framebuffer with ID %d.", type: .error, bus, framebuffer)
+        os_log("Failed to get interface %u for framebuffer with ID %u.", type: .error, bus, framebuffer)
         continue
       }
 
       var connect: IOI2CConnectRef?
       guard IOI2CInterfaceOpen(interface, IOOptionBits(), &connect) == KERN_SUCCESS else {
-        os_log("Failed to connect to interface %d for framebuffer with ID %d.", type: .error, bus, framebuffer)
+        os_log("Failed to connect to interface %u for framebuffer with ID %u.", type: .error, bus, framebuffer)
         continue
       }
 
       defer { IOI2CInterfaceClose(connect, IOOptionBits()) }
 
       guard IOI2CSendRequest(connect, IOOptionBits(), &request) == KERN_SUCCESS else {
-        os_log("Failed to send request to interface %d for framebuffer with ID %d.", type: .error, bus, framebuffer)
+        os_log("Failed to send request to interface %u for framebuffer with ID %u.", type: .error, bus, framebuffer)
         continue
       }
 
       guard request.result == KERN_SUCCESS else {
-        os_log("Request to interface %d for framebuffer with ID %d failed.", type: .error, bus, framebuffer)
+        os_log("Request to interface %u for framebuffer with ID %u failed.", type: .error, bus, framebuffer)
         continue
       }
 
@@ -504,7 +504,7 @@ public class DDC {
     let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &portIterator)
 
     guard status == KERN_SUCCESS else {
-      os_log("No matching services found for display with ID %d.", type: .error, displayId)
+      os_log("No matching services found for display with ID %u.", type: .error, displayId)
       return nil
     }
 
@@ -564,14 +564,15 @@ public class DDC {
         os_log("Location: %{public}@", type: .debug, location)
       }
 
-      os_log("Vendor ID: %d, Product ID: %d, Serial Number: %d", type: .debug, vendorId, productId, serialNumber)
-      os_log("Unit Number: %d", type: .debug, CGDisplayUnitNumber(displayId))
-      os_log("Service Port: %d", type: .debug, port)
+      os_log("Vendor ID: %u, Product ID: %u, Serial Number: %u", type: .debug,
+             portVendorId, portProductId, portSerialNumber)
+      os_log("Unit Number: %u", type: .debug, CGDisplayUnitNumber(displayId))
+      os_log("Service Port: %u", type: .debug, port)
 
       return port
     }
 
-    os_log("No service port found for display with ID %d.", type: .error, displayId)
+    os_log("No service port found for display with ID %u.", type: .error, displayId)
     return nil
   }
 
@@ -586,7 +587,7 @@ public class DDC {
 
     var busCount: IOItemCount = 0
     guard IOFBGetI2CInterfaceCount(servicePort, &busCount) == KERN_SUCCESS, busCount >= 1 else {
-      os_log("No framebuffer port found for display with ID %d.", type: .error, displayId)
+      os_log("No framebuffer port found for display with ID %u.", type: .error, displayId)
       return nil
     }
 
@@ -609,7 +610,7 @@ public class DDC {
       return EDID(data: bytes)
     }
 
-    os_log("No EDID entry found for display with ID %d.", type: .error, self.displayId)
+    os_log("No EDID entry found for display with ID %u.", type: .error, self.displayId)
     return nil
   }
 
@@ -638,7 +639,7 @@ public class DDC {
     }
 
     guard let edidData = receiveBytes(128, 0) else {
-      os_log("Failed receiving EDID for display with ID %d.", type: .error, self.displayId)
+      os_log("Failed receiving EDID for display with ID %u.", type: .error, self.displayId)
       return nil
     }
 
@@ -646,7 +647,7 @@ public class DDC {
 
     if extensions > 0 {
       guard let extensionData = receiveBytes(128 * extensions, 128) else {
-        os_log("Failed receiving EDID extensions for display with ID %d.", type: .error, self.displayId)
+        os_log("Failed receiving EDID extensions for display with ID %u.", type: .error, self.displayId)
         return nil
       }
 
