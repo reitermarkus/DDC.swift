@@ -537,12 +537,12 @@ public class DDC {
       var name: io_name_t?
       let size = MemoryLayout.size(ofValue: name)
       if let framebufferName = (withUnsafeMutablePointer(to: &name) {
-        $0.withMemoryRebound(to: Int8.self, capacity: size / MemoryLayout<Int8>.size) { (n) -> String? in
+        $0.withMemoryRebound(to: CChar.self, capacity: size / MemoryLayout<CChar>.size) { (n) -> String? in
           guard IORegistryEntryGetName(port, n) == kIOReturnSuccess else {
             return nil
           }
 
-          return n.withMemoryRebound(to: CChar.self, capacity: size / MemoryLayout<CChar>.size) { String(cString: $0) }
+          return String(cString: n)
         }
       }) {
         os_log("Framebuffer: %{public}@", type: .debug, framebufferName)
