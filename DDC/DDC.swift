@@ -515,22 +515,34 @@ public class DDC {
     while case let port = IOIteratorNext(portIterator), port != 0 {
       let dict = IODisplayCreateInfoDictionary(port, IOOptionBits(kIODisplayOnlyPreferredName)).takeRetainedValue() as NSDictionary
 
-      let vendorId = dict[kDisplayVendorID] as? CFIndex ?? 0
-      let productId = dict[kDisplayProductID] as? CFIndex ?? 0
-      let serialNumber = dict[kDisplaySerialNumber] as? CFIndex ?? 0
+      let valueForKey = { (k: String) in
+        (dict[k] as? CFIndex).flatMap { Int32(exactly: $0) }.flatMap { UInt32(bitPattern: $0) } ?? 0
+      }
 
-      guard vendorId == CGDisplayVendorNumber(displayId) else {
-        os_log("Service port vendor ID %ld differs from display product ID %ld.", type: .debug, vendorId, CGDisplayVendorNumber(displayId))
+      let portVendorId = valueForKey(kDisplayVendorID)
+      let displayVendorId = CGDisplayVendorNumber(displayId)
+
+      guard portVendorId == displayVendorId else {
+        os_log("Service port vendor ID %u differs from display product ID %u.", type: .debug,
+               portVendorId, displayVendorId)
         continue
       }
 
-      guard productId == CGDisplayModelNumber(displayId) else {
-        os_log("Service port product ID %ld differs from display product ID %ld.", type: .debug, productId, CGDisplayModelNumber(displayId))
+      let portProductId = valueForKey(kDisplayProductID)
+      let displayProductId = CGDisplayModelNumber(displayId)
+
+      guard portProductId == displayProductId else {
+        os_log("Service port product ID %u differs from display product ID %u.", type: .debug,
+               portProductId, displayProductId)
         continue
       }
 
-      guard serialNumber == CGDisplaySerialNumber(displayId) else {
-        os_log("Service port serial number %ld differs from display serial number %ld.", type: .debug, serialNumber, CGDisplaySerialNumber(displayId))
+      let portSerialNumber = valueForKey(kDisplaySerialNumber)
+      let displaySerialNumber = CGDisplaySerialNumber(displayId)
+
+      guard portSerialNumber == displaySerialNumber else {
+        os_log("Service port serial number %u differs from display serial number %u.", type: .debug,
+               portSerialNumber, displaySerialNumber)
         continue
       }
 
