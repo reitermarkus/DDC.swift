@@ -1,2 +1,6 @@
 /Carthage
 *.xcuserdatad
+
+# Swift Package Manager
+.build
+.swiftpm

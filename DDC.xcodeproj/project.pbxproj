@@ -12,7 +12,6 @@
 		2875061720786F5A00F8D7BD /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28320782DE6002A3BA6 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2875061820786F5A00F8D7BD /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28420782DE6002A3BA6 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2899042822601241004CBB6F /* DDCSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2899042722601241004CBB6F /* DDCSpec.swift */; };
-		2899042B226018D4004CBB6F /* DDC.h in Headers */ = {isa = PBXBuildFile; fileRef = 2899042A226018D4004CBB6F /* DDC.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		OBJ_59 /* DDC.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* DDC.swift */; };
 		OBJ_60 /* EDID.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* EDID.swift */; };
 /* End PBXBuildFile section */
@@ -48,7 +47,6 @@
 		284EB28320782DE6002A3BA6 /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/Mac/Nimble.framework; sourceTree = "<group>"; };
 		284EB28420782DE6002A3BA6 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/Mac/Quick.framework; sourceTree = "<group>"; };
 		2899042722601241004CBB6F /* DDCSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDCSpec.swift; sourceTree = "<group>"; };
-		2899042A226018D4004CBB6F /* DDC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDC.h; sourceTree = "<group>"; };
 		28990432226025F6004CBB6F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		"DDC::DDC::Product" /* DDC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DDC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* EDID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EDID.swift; sourceTree = "<group>"; };
@@ -115,7 +113,6 @@
 		OBJ_8 /* DDC */ = {
 			isa = PBXGroup;
 			children = (
-				2899042A226018D4004CBB6F /* DDC.h */,
 				OBJ_9 /* DDC.swift */,
 				OBJ_10 /* EDID.swift */,
 				28990432226025F6004CBB6F /* Info.plist */,
@@ -130,7 +127,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2899042B226018D4004CBB6F /* DDC.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,7 +480,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
-				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DDC;
 			};
@@ -513,7 +508,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
-				SWIFT_OBJC_BRIDGING_HEADER = DDC/DDC.h;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DDC;
 			};
