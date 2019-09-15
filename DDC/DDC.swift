@@ -1,6 +1,6 @@
 import Cocoa
 import Foundation
-import IOKit
+import IOKit.i2c
 import os.log
 
 public class DDC {
