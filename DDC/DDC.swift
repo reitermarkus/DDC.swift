@@ -545,7 +545,21 @@ public class DDC {
                portSerialNumber, displaySerialNumber)
         continue
       }
-
+      
+      if let displayLocation = dict[kIODisplayLocationKey] as? NSString {
+        // the unit number is the number right after the last "@" sign in the display location
+        if let regex = try? NSRegularExpression(pattern: "@([0-9]+)[^@]+$", options: []) {
+          if let match = regex.firstMatch(in: displayLocation as String, options: [],
+                  range: NSRange(location: 0, length: displayLocation.length)) {
+            let unitNumber = UInt32(displayLocation.substring(with: match.range(at: 1)))
+        
+            guard unitNumber == CGDisplayUnitNumber(displayId) else {
+              continue
+            }
+          }
+        }
+      }
+  
       var name: io_name_t?
       let size = MemoryLayout.size(ofValue: name)
       if let framebufferName = (withUnsafeMutablePointer(to: &name) {
