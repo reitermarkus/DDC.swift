@@ -499,6 +499,14 @@ public class DDC {
   }
 
   static func servicePort(from displayId: CGDirectDisplayID) -> io_object_t? {
+    if let port = DDC.servicePort(from: displayId, detectUnitNumber: true) {
+      return port
+    }
+    
+    return DDC.servicePort(from: displayId, detectUnitNumber: false)
+  }
+  
+  static func servicePort(from displayId: CGDirectDisplayID, detectUnitNumber: Bool) -> io_object_t? {
     var portIterator = io_iterator_t()
 
     let status: kern_return_t = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching(IOFRAMEBUFFER_CONFORMSTO), &portIterator)
@@ -545,7 +553,20 @@ public class DDC {
                portSerialNumber, displaySerialNumber)
         continue
       }
-
+      
+      if detectUnitNumber, let displayLocation = dict[kIODisplayLocationKey] as? NSString {
+        // the unit number is the number right after the last "@" sign in the display location
+        let regex = try! NSRegularExpression(pattern: "@([0-9]+)[^@]+$", options: [])
+        if let match = regex.firstMatch(in: displayLocation as String, options: [],
+                range: NSRange(location: 0, length: displayLocation.length)) {
+          let unitNumber = UInt32(displayLocation.substring(with: match.range(at: 1)))
+    
+          guard unitNumber == CGDisplayUnitNumber(displayId) else {
+            continue
+          }
+        }
+      }
+  
       var name: io_name_t?
       let size = MemoryLayout.size(ofValue: name)
       if let framebufferName = (withUnsafeMutablePointer(to: &name) {
