@@ -556,6 +556,7 @@ public class DDC {
       
       if detectUnitNumber, let displayLocation = dict[kIODisplayLocationKey] as? NSString {
         // the unit number is the number right after the last "@" sign in the display location
+        // swiftlint:disable:next force_try
         let regex = try! NSRegularExpression(pattern: "@([0-9]+)[^@]+$", options: [])
         if let match = regex.firstMatch(in: displayLocation as String, options: [],
                 range: NSRange(location: 0, length: displayLocation.length)) {

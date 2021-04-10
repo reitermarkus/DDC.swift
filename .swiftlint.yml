@@ -6,8 +6,6 @@ disabled_rules:
   - large_tuple
   - nesting
   - cyclomatic_complexity
-force_try:
-  severity: warning
 excluded:
   - Carthage
 type_body_length: 500
