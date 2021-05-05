@@ -12,6 +12,8 @@
 		2875061720786F5A00F8D7BD /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28320782DE6002A3BA6 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2875061820786F5A00F8D7BD /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 284EB28420782DE6002A3BA6 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2899042822601241004CBB6F /* DDCSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2899042722601241004CBB6F /* DDCSpec.swift */; };
+		3CE7A5D72642C7AC00085FE1 /* Bundle+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE7A5D52642C7AC00085FE1 /* Bundle+Extension.swift */; };
+		3CE7A5D82642C7AC00085FE1 /* OSLog+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE7A5D62642C7AC00085FE1 /* OSLog+Extension.swift */; };
 		OBJ_59 /* DDC.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* DDC.swift */; };
 		OBJ_60 /* EDID.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* EDID.swift */; };
 /* End PBXBuildFile section */
@@ -48,6 +50,8 @@
 		284EB28420782DE6002A3BA6 /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/Mac/Quick.framework; sourceTree = "<group>"; };
 		2899042722601241004CBB6F /* DDCSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDCSpec.swift; sourceTree = "<group>"; };
 		28990432226025F6004CBB6F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3CE7A5D52642C7AC00085FE1 /* Bundle+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bundle+Extension.swift"; sourceTree = "<group>"; };
+		3CE7A5D62642C7AC00085FE1 /* OSLog+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OSLog+Extension.swift"; sourceTree = "<group>"; };
 		"DDC::DDC::Product" /* DDC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DDC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* EDID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EDID.swift; sourceTree = "<group>"; };
 		OBJ_9 /* DDC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DDC.swift; sourceTree = "<group>"; };
@@ -91,6 +95,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		3CE7A5DA2642CA5300085FE1 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				3CE7A5D52642C7AC00085FE1 /* Bundle+Extension.swift */,
+				3CE7A5D62642C7AC00085FE1 /* OSLog+Extension.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		OBJ_49 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -115,6 +128,7 @@
 			children = (
 				OBJ_9 /* DDC.swift */,
 				OBJ_10 /* EDID.swift */,
+				3CE7A5DA2642CA5300085FE1 /* Extension */,
 				28990432226025F6004CBB6F /* Info.plist */,
 			);
 			path = DDC;
@@ -274,7 +288,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				3CE7A5D82642C7AC00085FE1 /* OSLog+Extension.swift in Sources */,
 				OBJ_59 /* DDC.swift in Sources */,
+				3CE7A5D72642C7AC00085FE1 /* Bundle+Extension.swift in Sources */,
 				OBJ_60 /* EDID.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
